@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+.links line {
+  stroke: #999;
+  stroke-opacity: 0.6;
+}
+
+.nodes circle {
+  stroke: #fff;
+  stroke-width: 1.5px;
+}
+
+text {
+  font-family: sans-serif;
+  font-size: 10px;
+}
+
+</style>
+
+<body>
+<output id="list"></output>
+<svg width="960" height="600"></svg>
+<!--<canvas width="960" height="600"></canvas>-->
+<label><input style="width:240px;" type="range" min="0" max="1" step="any" value="0.5"> Link Strength</label>
+</body>
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script>
+const numTags = 5; // Number of associated tags stored with an artist
+
+// Get a user's artists with associated tags
+var current = "";
+window.numArtists;
+//var artists = new Array();
+window.artists = new Array();
+
+
+      var current;
+      $.when(ajax1()).done(function(data1){
+        window.numArtists = data1.artists.artist.length;
+        for(var i = 0; i < window.numArtists; i++) { // Initialize each artist with name and empty array
+          current = data1.artists.artist[i].name;
+            $.when(ajax2(current)).done(function(data2) {
+            if(data2.toptags) {
+              var arr = new Array();
+                  for(var j = 0; j < numTags; j++) {
+                    arr[j] = data2.toptags.tag[j];
+                  }
+              window.artists[i] = {
+                name: current,
+                tags: arr
+              }
+            }
+            });
+        }
+
+      });
+
+$(document).ready(function() {
+      for(var i = 0; i < window.numArtists; i++) { // Iterate through every artist and their tag to get tag NAMES
+        for(var j = 0; j < numTags; j++) { // Literally iterate through every tag :((((
+          if(window.artists[i] && window.artists[i].tags[j]) { // If the artist and each tag exist
+          window.artists[i].tags[j] = window.artists[i].tags[j].name;
+        }
+      }
+      }
+      console.log(window.artists);
+      //Start localStorage stuff here
+      window.artistData = {
+        nodes: [],
+        links: []
+      };
+
+      for(var i in window.artists) { // Create JSON object for each node
+        var item = window.artists[i];
+        window.artistData.nodes.push({
+          "id" : item.name,
+          "group" : 1
+        });
+      }
+      for(var i in window.artists) {
+        var artist1 = window.artists[i];
+        for(var j = i+1; j < numArtists; j++) {
+          var artist2 = window.artists[j];
+        var commonTags = getCommonTags(artist1, artist2);
+          if(commonTags > 0) {
+            window.artistData.links.push({
+              "source" : artist1.name,
+              "target" : artist2.name,
+              "value" : commonTags
+            });
+          }
+        }
+      }
+
+
+      console.log(window.artistData);
+        
+
+      var svg = d3.select("svg"),
+      width = +svg.attr("width"),
+      height = +svg.attr("height");
+
+  var color = d3.scaleOrdinal(d3.schemeCategory20);
+
+  var simulation = d3.forceSimulation()
+      .force("link", d3.forceLink().id(function(d) { return d.id; }).strength(0.05))
+      .force("charge", d3.forceManyBody())
+      .force("center", d3.forceCenter(width / 2, height / 2));
+
+
+  //d3.data(window.artistData, function(error, graph) {
+   // if (error) return console.warn(error);
+
+
+    var link = svg.append("g")
+        .attr("class", "links")
+      .selectAll("line")
+      .data(window.artistData.links)
+      .enter().append("line")
+        .attr("stroke-width", function(d) { return Math.sqrt(d.value); });
+
+    var node = svg.append("g")
+        .attr("class", "nodes")
+      .selectAll("g")
+      .data(window.artistData.nodes)
+      .enter().append("g")
+      
+    var circles = node.append("circle")
+        .attr("r", 5)
+        .attr("fill", function(d) { return color(d.group); })
+        .call(d3.drag()
+            .on("start", dragstarted)
+            .on("drag", dragged)
+            .on("end", dragended));
+
+    var lables = node.append("text")
+        .text(function(d) {
+          return d.id;
+        })
+        .attr('x', 6)
+        .attr('y', 3);
+
+    node.append("title")
+        .text(function(d) { return d.id; });
+
+    simulation
+        .nodes(window.artistData.nodes)
+        .on("tick", ticked);
+
+    simulation.force("link")
+        .links(window.artistData.links);
+
+
+
+    function ticked() {
+      link
+          .attr("x1", function(d) { return d.source.x; })
+          .attr("y1", function(d) { return d.source.y; })
+          .attr("x2", function(d) { return d.target.x; })
+          .attr("y2", function(d) { return d.target.y; });
+
+      node
+          .attr("transform", function(d) {
+            return "translate(" + d.x + "," + d.y + ")";
+          })
+    }
+
+  //});
+
+
+  function dragstarted(d) {
+    if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+    d.fx = d.x;
+    d.fy = d.y;
+  }
+
+  function dragged(d) {
+    d.fx = d3.event.x;
+    d.fy = d3.event.y;
+  }
+
+  function dragended(d) {
+    if (!d3.event.active) simulation.alphaTarget(0);
+    d.fx = null;
+    d.fy = null;
+  }
+
+/*
+var canvas = document.querySelector("canvas"),
+    context = canvas.getContext("2d"),
+    width = canvas.width,
+    height = canvas.height;
+
+var simulation = d3.forceSimulation()
+    .force("link", d3.forceLink().id(function(d) { return d.id; }).strength(0.5))
+    .force("charge", d3.forceManyBody())
+    .force("center", d3.forceCenter(width / 2, height / 2))
+    // .alphaDecay(0);
+
+d3.select("input[type=range]")
+    .on("input", inputted);
+
+
+var graph = artistData;
+
+  simulation
+      .nodes(window.artistData.nodes)
+      .on("tick", ticked);
+
+  simulation.force("link")
+      .links(window.artistData.links);
+
+  function ticked() {
+    context.clearRect(0, 0, width, height);
+
+    context.beginPath();
+    graph.links.forEach(drawLink);
+    context.strokeStyle = "#aaa";
+    context.stroke();
+
+    context.beginPath();
+    graph.nodes.forEach(drawNode);
+    context.fill();
+    context.strokeStyle = "#fff";
+    context.stroke();
+
+  }
+
+function inputted() {
+  simulation.force("link").strength(+this.value);
+  simulation.alpha(1).restart();
+}
+
+function drawLink(d) {
+  context.moveTo(d.source.x, d.source.y);
+  context.lineTo(d.target.x, d.target.y);
+}
+
+function drawNode(d) {
+  context.moveTo(d.x + 3, d.y);
+  context.arc(d.x, d.y, 3, 0, 2 * Math.PI);
+}
+*/
+
+
+});
+
+
+/*
+  Returns the NUMBER of common tags between any two given artists
+*/
+function getCommonTags(artist1, artist2) {
+  if(artist1 && artist2) {
+    return artist1.tags.filter(value => artist2.tags.includes(value)).length;
+  }
+}
+/*
+  Returns the JSON call for artists for a given user
+*/
+function ajax1() {
+  return $.ajax({
+        dataType: 'json',
+        async: false,
+        url: 'http://ws.audioscrobbler.com/2.0/?method=library.getartists&api_key=943bdddf5707846447a81b95edae1537&user=chiefton117&format=json'
+      });
+}
+/*
+  Returns the JSON call for tags for a given artist
+*/
+function ajax2(name) {
+  return $.ajax({
+        dataType: 'json',
+        async: false,
+        url: "http://ws.audioscrobbler.com/2.0/?method=artist.gettoptags&artist=" + name + "&api_key=943bdddf5707846447a81b95edae1537&format=json"
+      });
+}
+
+
+
+</script>
