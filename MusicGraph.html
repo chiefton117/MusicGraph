@@ -18,14 +18,22 @@ text {
 }
 
 </style>
-
+<head style="text-align: center; font-family: Arial;">
+<h1 style="text-align: center; font-family: Arial;">Last.fm Artist Graph</h1>
+<p style="text-align: center; font-family: Arial;">Last.fm Username:</p>
+<form id='userForm'>
+<input style="align: center; font-family: Arial;" type="text" id='userInput'></input>
+<input type="submit" value="Submit">
+</form>
+<hr>
+</head>
 <body>
+
 <output id="list"></output>
-<svg width="960" height="600"></svg>
+<svg style="display: block; margin: auto;" width="960" height="600"></svg>
 <!--<canvas width="960" height="600"></canvas>-->
 <label><input style="width:240px;" type="range" min="0" max="1" step="any" value="0.5"> Link Strength</label>
 </body>
-
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script>
