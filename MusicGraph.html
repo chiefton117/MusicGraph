@@ -28,7 +28,7 @@ text {
   <form id='userForm'>
   <input class="userInput" id="userTxt" type="text" value="chiefton117"></input>
   <input class="userInput" id="userNum" type="number" name="quantity"
-   min="0" max="100" step="10" value="10"></input>
+   min="0" max="200" step="10" value="10"></input>
   <input type="button" id="genbtn" value="Generate">
 </div>
 </form>
@@ -193,7 +193,7 @@ $('#genbtn').click(function() {
 
   force.nodes(nodes).links(links);
 
-  var l = svg.selectAll(".links")
+  var l = svg.selectAll(".links ")
     .data(window.artistData.links, function(d) {return d.source + "," + d.target});
   var n = svg.selectAll(".node")
     .data(window.artistData.nodes, function(d) {return d.key});
