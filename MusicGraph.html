@@ -16,38 +16,54 @@ text {
   font-family: sans-serif;
   font-size: 10px;
 }
+.container {
+  display: block;
+  margin: auto;
+}
 
 </style>
 <head style="text-align: center; font-family: Arial;">
-<h1 style="text-align: center; font-family: Arial;">Last.fm Artist Graph</h1>
-<p style="text-align: center; font-family: Arial;">Last.fm Username:</p>
-<form id='userForm'>
-<input style="align: center; font-family: Arial;" type="text" id='userInput'></input>
-<input type="submit" value="Submit">
+<!--<h1 style="text-align: center; font-family: Arial;">Last.fm Artist Graph</h1>-->
+<div style="display: block;">
+  <form id='userForm'>
+  <input class="userInput" id="userTxt" type="text" value="chiefton117"></input>
+  <input class="userInput" id="userNum" type="number" name="quantity"
+   min="0" max="100" step="10" value="10"></input>
+  <input type="button" id="genbtn" value="Generate">
+</div>
 </form>
 <hr>
 </head>
 <body>
 
 <output id="list"></output>
-<svg style="display: block; margin: auto;" width="960" height="600"></svg>
-<!--<canvas width="960" height="600"></canvas>-->
-<label><input style="width:240px;" type="range" min="0" max="1" step="any" value="0.5"> Link Strength</label>
+<div class="container" width="100%" height="100%">
+  <svg style="display: block; margin: auto;" id="chart" width="1200" height="800"></svg>
+</div>
 </body>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script>
 const numTags = 5; // Number of associated tags stored with an artist
+window.firstClick = true;
 
-// Get a user's artists with associated tags
-var current = "";
-window.numArtists;
-//var artists = new Array();
-window.artists = new Array();
+$(document).ready(function() {
+$('#genbtn').click(function() {
 
+      if(!window.firstClick) {
+          update();
+      }
+      if(window.firstClick) {
+          window.firstClick = false;
+      }
 
+      var userTxt = $('#userTxt').val();
+      var userNum = $('#userNum').val();
+      window.numArtists;
+      window.artists = new Array();
       var current;
-      $.when(ajax1()).done(function(data1){
+
+      $.when(ajax1(userTxt, userNum)).done(function(data1){
         window.numArtists = data1.artists.artist.length;
         for(var i = 0; i < window.numArtists; i++) { // Initialize each artist with name and empty array
           current = data1.artists.artist[i].name;
@@ -64,10 +80,9 @@ window.artists = new Array();
             }
             });
         }
-
       });
 
-$(document).ready(function() {
+
       for(var i = 0; i < window.numArtists; i++) { // Iterate through every artist and their tag to get tag NAMES
         for(var j = 0; j < numTags; j++) { // Literally iterate through every tag :((((
           if(window.artists[i] && window.artists[i].tags[j]) { // If the artist and each tag exist
@@ -75,8 +90,6 @@ $(document).ready(function() {
         }
       }
       }
-      console.log(window.artists);
-      //Start localStorage stuff here
       window.artistData = {
         nodes: [],
         links: []
@@ -89,7 +102,7 @@ $(document).ready(function() {
           "group" : 1
         });
       }
-      for(var i in window.artists) {
+      for(var i in window.artists) { // Literally check everything against everything
         var artist1 = window.artists[i];
         for(var j = i+1; j < numArtists; j++) {
           var artist2 = window.artists[j];
@@ -112,74 +125,91 @@ $(document).ready(function() {
       width = +svg.attr("width"),
       height = +svg.attr("height");
 
-  var color = d3.scaleOrdinal(d3.schemeCategory20);
+      var color = d3.scaleOrdinal(d3.schemeCategory20);
 
-  var simulation = d3.forceSimulation()
-      .force("link", d3.forceLink().id(function(d) { return d.id; }).strength(0.05))
-      .force("charge", d3.forceManyBody())
-      .force("center", d3.forceCenter(width / 2, height / 2));
+      var simulation = d3.forceSimulation()
+          .force("link", d3.forceLink().id(function(d) { return d.id; }).strength(function(d) {return (d.value / 100)})) // Strength is common tags / 100
+          .force("charge", d3.forceManyBody())
+          .force("center", d3.forceCenter(width / 2, height / 2));
 
+        var link = svg.append("g")
+            .attr("class", "links")
+          .selectAll("line")
+          .data(window.artistData.links)
+          .enter().append("line")
+            .attr("stroke-width", function(d) { return Math.sqrt(d.value); });
 
-  //d3.data(window.artistData, function(error, graph) {
-   // if (error) return console.warn(error);
+        var node = svg.append("g")
+            .attr("class", "nodes")
+          .selectAll("g")
+          .data(window.artistData.nodes)
+          .enter().append("g")
+          
+        var circles = node.append("circle")
+            .attr("r", 5)
+            .attr("fill", function(d) { return color(d.group); })
+            .call(d3.drag()
+                .on("start", dragstarted)
+                .on("drag", dragged)
+                .on("end", dragended));
 
+        var lables = node.append("text")
+            .text(function(d) {
+              return d.id;
+            })
+            .attr('x', 6)
+            .attr('y', 3);
 
-    var link = svg.append("g")
-        .attr("class", "links")
-      .selectAll("line")
-      .data(window.artistData.links)
-      .enter().append("line")
-        .attr("stroke-width", function(d) { return Math.sqrt(d.value); });
+        node.append("title")
+            .text(function(d) { return d.id; });
 
-    var node = svg.append("g")
-        .attr("class", "nodes")
-      .selectAll("g")
-      .data(window.artistData.nodes)
-      .enter().append("g")
-      
-    var circles = node.append("circle")
-        .attr("r", 5)
-        .attr("fill", function(d) { return color(d.group); })
-        .call(d3.drag()
-            .on("start", dragstarted)
-            .on("drag", dragged)
-            .on("end", dragended));
+        simulation
+            .nodes(window.artistData.nodes)
+            .on("tick", ticked);
 
-    var lables = node.append("text")
-        .text(function(d) {
-          return d.id;
-        })
-        .attr('x', 6)
-        .attr('y', 3);
+        simulation.force("link")
+            .links(window.artistData.links);
 
-    node.append("title")
-        .text(function(d) { return d.id; });
+        var radius = 15;
+        node.attr("r", radius)
 
-    simulation
-        .nodes(window.artistData.nodes)
-        .on("tick", ticked);
+        function ticked() {
+          link
+              .attr("x1", function(d) { return d.source.x; })
+              .attr("y1", function(d) { return d.source.y; })
+              .attr("x2", function(d) { return d.target.x; })
+              .attr("y2", function(d) { return d.target.y; });
 
-    simulation.force("link")
-        .links(window.artistData.links);
-
-
-
-    function ticked() {
-      link
-          .attr("x1", function(d) { return d.source.x; })
-          .attr("y1", function(d) { return d.source.y; })
-          .attr("x2", function(d) { return d.target.x; })
-          .attr("y2", function(d) { return d.target.y; });
-
-      node
-          .attr("transform", function(d) {
-            return "translate(" + d.x + "," + d.y + ")";
-          })
-    }
-
-  //});
+          node
+            .attr("transform", function(d) { return "translate(" + (d.x = Math.max(radius, Math.min(width - radius, d.x))) + "," + (d.y = Math.max(radius, Math.min(height - radius, d.y))) + ")";
+             })
+        }
 
 
+});
+});
+
+  function update() {
+
+  force.nodes(nodes).links(links);
+
+  var l = svg.selectAll(".links")
+    .data(window.artistData.links, function(d) {return d.source + "," + d.target});
+  var n = svg.selectAll(".node")
+    .data(window.artistData.nodes, function(d) {return d.key});
+  enterLinks(l);
+  exitLinks(l);
+  enterNodes(n);
+  exitNodes(n);
+  link = svg.selectAll(".link");
+  node = svg.selectAll(".node");
+
+  link.style("stroke-width", function(d) { return d.weight; });
+
+  node.select("circle").attr("r", function(d) {return d.weight});
+
+  force.start();
+  }
   function dragstarted(d) {
     if (!d3.event.active) simulation.alphaTarget(0.3).restart();
     d.fx = d.x;
@@ -197,66 +227,6 @@ $(document).ready(function() {
     d.fy = null;
   }
 
-/*
-var canvas = document.querySelector("canvas"),
-    context = canvas.getContext("2d"),
-    width = canvas.width,
-    height = canvas.height;
-
-var simulation = d3.forceSimulation()
-    .force("link", d3.forceLink().id(function(d) { return d.id; }).strength(0.5))
-    .force("charge", d3.forceManyBody())
-    .force("center", d3.forceCenter(width / 2, height / 2))
-    // .alphaDecay(0);
-
-d3.select("input[type=range]")
-    .on("input", inputted);
-
-
-var graph = artistData;
-
-  simulation
-      .nodes(window.artistData.nodes)
-      .on("tick", ticked);
-
-  simulation.force("link")
-      .links(window.artistData.links);
-
-  function ticked() {
-    context.clearRect(0, 0, width, height);
-
-    context.beginPath();
-    graph.links.forEach(drawLink);
-    context.strokeStyle = "#aaa";
-    context.stroke();
-
-    context.beginPath();
-    graph.nodes.forEach(drawNode);
-    context.fill();
-    context.strokeStyle = "#fff";
-    context.stroke();
-
-  }
-
-function inputted() {
-  simulation.force("link").strength(+this.value);
-  simulation.alpha(1).restart();
-}
-
-function drawLink(d) {
-  context.moveTo(d.source.x, d.source.y);
-  context.lineTo(d.target.x, d.target.y);
-}
-
-function drawNode(d) {
-  context.moveTo(d.x + 3, d.y);
-  context.arc(d.x, d.y, 3, 0, 2 * Math.PI);
-}
-*/
-
-
-});
-
 
 /*
   Returns the NUMBER of common tags between any two given artists
@@ -269,11 +239,11 @@ function getCommonTags(artist1, artist2) {
 /*
   Returns the JSON call for artists for a given user
 */
-function ajax1() {
+function ajax1(username, limit) {
   return $.ajax({
         dataType: 'json',
         async: false,
-        url: 'http://ws.audioscrobbler.com/2.0/?method=library.getartists&api_key=943bdddf5707846447a81b95edae1537&user=chiefton117&format=json'
+        url: 'http://ws.audioscrobbler.com/2.0/?method=library.getartists&api_key=943bdddf5707846447a81b95edae1537&user=' + username + '&limit=' + limit + '&format=json'
       });
 }
 /*
