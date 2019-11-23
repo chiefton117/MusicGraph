@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+text {
+  font-family: sans-serif;
+  font-size: 10px;
+}
+.container {
+  display: block;
+  border: 1px solid black;
+}
+p {
+  margin: 0px;
+}
+#AContainer {
+  float: right;
+  border: 1px solid black;
+}
+#TContainer {
+  float: left;
+  border: 1px solid black;
+}
+
+</style>
+<head style="text-align: center; font-family: Arial;">
+<h3 style="text-align: center; font-family: Arial;">Last.fm Tag Count by User</h3>
+<div style="display: block;">
+  <form id='userForm'>
+  <input class="userInput" id="userTxt" type="text" value="chiefton117"></input>
+  <input class="userInput" id="userNum" type="number" name="quantity"
+   min="0" max="200" step="10" value="10"></input>
+  <input type="button" id="genbtn" value="Get">
+  <a href="MusicGraph.html" style="text-align: right;"><p>graph</p></a>
+</div>
+</form>
+<hr>
+</head>
+<body>
+<output id="list"></output>
+<div class="container" id="AContainer" width="50%">
+  <h5>Artists</h5>
+</div>
+<div class="container" id="TContainer" width="50%">
+  <h5>Unweighted Tags</h5>
+</div>
+<div class="container" id="WContainer" width="50%">
+  <h5>Weighted Tags</h5>
+</div>
+</body>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script>
+const numTags = 5; // Number of associated tags stored with an artist
+window.firstClick = true;
+
+$(document).ready(function() {
+$('#genbtn').click(function() {
+
+      if(!window.firstClick) {
+          update();
+      }
+      if(window.firstClick) {
+          window.firstClick = false;
+      }
+
+      var userTxt = $('#userTxt').val();
+      var userNum = $('#userNum').val();
+      window.numArtists;
+      window.artists = new Array();
+      var current;
+      var playcount;
+
+      $.when(ajax1(userTxt, userNum)).done(function(data1){
+        window.numArtists = data1.artists.artist.length;
+        for(var i = 0; i < window.numArtists; i++) { // Initialize each artist with name and empty array
+          current = data1.artists.artist[i].name;
+          playcount = data1.artists.artist[i].playcount;
+            $.when(ajax2(current)).done(function(data2) {
+            if(data2.toptags) {
+              var arr = new Array();
+                  for(var j = 0; j < numTags; j++) {
+                    arr[j] = data2.toptags.tag[j];
+                  }
+              window.artists[i] = {
+                name: current,
+                plays: playcount,
+                tags: arr
+              }
+            }
+            });
+        }
+      });
+      var comp = document.createElement("p");
+      document.getElementById("AContainer").appendChild(comp);
+      var tagdict = {}; // Dictionary of artists and their tags
+      var tagdictweighted = {}; // Dictionary of artists and weighted tags
+      var temp;
+      var tempplay;
+      for(var i = 0; i < window.numArtists; i++) { // Iterate through every artist
+
+        for(var j = 0; j < numTags; j++) { // Literally iterate through every tag :((((
+          if(window.artists[i] && window.artists[i].tags[j]) { // If the artist and each tag exist
+          temp = window.artists[i].tags[j].name;
+          tempplay = window.artists[i].plays;
+          window.artists[i].tags[j] = temp;
+          if(temp in tagdict && temp in tagdictweighted) { // Case 1: Tag already exists - add one to tag count, add plays to weighted count
+            tagdict[temp] = tagdict[temp] + 1;
+            tagdictweighted[temp] = tagdictweighted[temp] + parseInt(tempplay);
+
+            document.getElementById(temp + "unweighted").innerHTML = temp + " : " + tagdict[temp]; // Iterate unweighted tag element with updated number
+            document.getElementById(temp + "weighted").innerHTML = temp + " : " + tagdictweighted[temp]; // Iterate weighted tag element with updated number
+
+          } else { // Case 2: Tag does not exist - add to dictionaries
+              tagdict[temp] = 1;
+              tagdictweighted[temp] = parseInt(tempplay);
+
+
+              var element = document.createElement("p"); // Create unweighted element for tag
+              var text = document.createTextNode(temp + " : " + tagdict[temp]);
+              element.setAttribute('id', temp + "unweighted");
+              element.appendChild(text);
+              document.getElementById("TContainer").appendChild(element);
+
+              var element = document.createElement("p"); // Create weighted element for tag
+              var text = document.createTextNode(temp + " : " + tagdictweighted[temp]);
+              element.setAttribute('id', temp + "weighted");
+              element.appendChild(text);
+              document.getElementById("WContainer").appendChild(element);
+          }
+        }
+      }
+      
+      if(window.artists[i]) { // Create box of artists
+        var element = document.createElement("p");
+        var text = document.createTextNode(window.artists[i].name);
+        element.appendChild(text);
+        document.getElementById("AContainer").appendChild(element);
+      }
+
+      }
+
+      console.log(tagdict);
+      console.log(tagdictweighted);
+      console.log(window.artists);
+      
+      /*
+      for(var i in window.artists) { // Create JSON object for each node
+        var item = window.artists[i];
+        window.artistData.nodes.push({
+          "id" : item.name,
+          "group" : 1
+        });
+      }
+      for(var i in window.artists) { // Literally check everything against everything
+        var artist1 = window.artists[i];
+        for(var j = i+1; j < numArtists; j++) {
+          var artist2 = window.artists[j];
+        var commonTags = getCommonTags(artist1, artist2);
+          if(commonTags > 0) {
+            window.artistData.links.push({
+              "source" : artist1.name,
+              "target" : artist2.name,
+              "value" : commonTags
+            });
+          }
+        }
+
+      }*/
+
+      
+  
+
+
+});
+});
+
+
+
+/*
+  Returns the NUMBER of common tags between any two given artists
+*/
+function getCommonTags(artist1, artist2) {
+  if(artist1 && artist2) {
+    var len = artist1.tags.filter(value => artist2.tags.includes(value)).length;
+    if(len) {
+      return len-1;
+    }
+  }
+}
+/*
+  Returns the JSON call for artists for a given user
+*/
+function ajax1(username, limit) {
+  return $.ajax({
+        dataType: 'json',
+        async: false,
+        url: 'http://ws.audioscrobbler.com/2.0/?method=library.getartists&api_key=943bdddf5707846447a81b95edae1537&user=' + username + '&limit=' + limit + '&format=json'
+      });
+}
+/*
+  Returns the JSON call for tags for a given artist
+*/
+function ajax2(name) {
+  return $.ajax({
+        dataType: 'json',
+        async: false,
+        url: "http://ws.audioscrobbler.com/2.0/?method=artist.gettoptags&artist=" + name + "&api_key=943bdddf5707846447a81b95edae1537&format=json"
+      });
+}
+/*
+  Returns the JSON call for a user's library, given a username
+*/
+/*
+function ajax3(username, limit) {
+  return $.ajax({
+        dataType: 'json',
+        async: false,
+        url: "http://ws.audioscrobbler.com/2.0/?method=library.getartists&&api_key=943bdddf5707846447a81b95edae1537&user=" + name + "&format=json"
+      });
+}
+*/
+
+
+</script>

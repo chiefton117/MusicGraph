@@ -30,15 +30,15 @@ text {
   <input class="userInput" id="userNum" type="number" name="quantity"
    min="0" max="200" step="10" value="10"></input>
   <input type="button" id="genbtn" value="Generate">
+  <a href="index.html" style="text-align: right;"><p>home</p></a>
 </div>
 </form>
 <hr>
 </head>
 <body>
-
 <output id="list"></output>
 <div class="container" width="100%" height="100%">
-  <svg style="display: block; margin: auto;" id="chart" width="1200" height="800"></svg>
+  <svg style="display: block; margin: auto; border: 1px solid black;" id="chart" width="1200" height="800"></svg>
 </div>
 </body>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
@@ -128,23 +128,27 @@ $('#genbtn').click(function() {
       var color = d3.scaleOrdinal(d3.schemeCategory20);
 
       var simulation = d3.forceSimulation()
-          .force("link", d3.forceLink().id(function(d) { return d.id; }).strength(function(d) {return (d.value / 100)})) // Strength is common tags / 100
+          .force("link", d3.forceLink().id(function(d) { return d.id; }).strength(function(d) {return (d.value / 500)})) // Strength is common tags / 100
           .force("charge", d3.forceManyBody())
           .force("center", d3.forceCenter(width / 2, height / 2));
 
-        var link = svg.append("g")
+        var g = svg.append("g")
+            .attr("class", "everything");
+        
+        var link = g.append("g")
             .attr("class", "links")
           .selectAll("line")
           .data(window.artistData.links)
           .enter().append("line")
             .attr("stroke-width", function(d) { return Math.sqrt(d.value); });
 
-        var node = svg.append("g")
+        var node = g.append("g")
             .attr("class", "nodes")
           .selectAll("g")
           .data(window.artistData.nodes)
-          .enter().append("g")
-          
+          .enter().append("g");
+        
+
         var circles = node.append("circle")
             .attr("r", 5)
             .attr("fill", function(d) { return color(d.group); })
@@ -152,6 +156,8 @@ $('#genbtn').click(function() {
                 .on("start", dragstarted)
                 .on("drag", dragged)
                 .on("end", dragended));
+
+
 
         var lables = node.append("text")
             .text(function(d) {
@@ -173,43 +179,33 @@ $('#genbtn').click(function() {
         var radius = 15;
         node.attr("r", radius)
 
+        var zoom_handler = d3.zoom()
+            .on("zoom", zoomaction);
+
+        zoom_handler(svg);
+
         function ticked() {
           link
               .attr("x1", function(d) { return d.source.x; })
               .attr("y1", function(d) { return d.source.y; })
               .attr("x2", function(d) { return d.target.x; })
               .attr("y2", function(d) { return d.target.y; });
-
+/*
           node
             .attr("transform", function(d) { return "translate(" + (d.x = Math.max(radius, Math.min(width - radius, d.x))) + "," + (d.y = Math.max(radius, Math.min(height - radius, d.y))) + ")";
              })
+*/
+          node
+            .attr("transform", function(d) {
+              return "translate(" + d.x + "," + d.y + ")";
+        })  
+        }
+
+        function zoomaction() { //zoom functionality
+          g.attr("transform", d3.event.transform)
         }
 
 
-});
-});
-
-  function update() {
-
-  force.nodes(nodes).links(links);
-
-  var l = svg.selectAll(".links ")
-    .data(window.artistData.links, function(d) {return d.source + "," + d.target});
-  var n = svg.selectAll(".node")
-    .data(window.artistData.nodes, function(d) {return d.key});
-  enterLinks(l);
-  exitLinks(l);
-  enterNodes(n);
-  exitNodes(n);
-  link = svg.selectAll(".link");
-  node = svg.selectAll(".node");
-
-  link.style("stroke-width", function(d) { return d.weight; });
-
-  node.select("circle").attr("r", function(d) {return d.weight});
-
-  force.start();
-  }
   function dragstarted(d) {
     if (!d3.event.active) simulation.alphaTarget(0.3).restart();
     d.fx = d.x;
@@ -228,12 +224,20 @@ $('#genbtn').click(function() {
   }
 
 
+});
+});
+
+
+
 /*
   Returns the NUMBER of common tags between any two given artists
 */
 function getCommonTags(artist1, artist2) {
   if(artist1 && artist2) {
-    return artist1.tags.filter(value => artist2.tags.includes(value)).length;
+    var len = artist1.tags.filter(value => artist2.tags.includes(value)).length;
+    if(len) {
+      return len-1;
+    }
   }
 }
 /*
