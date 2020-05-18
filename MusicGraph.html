@@ -23,12 +23,18 @@ text {
 
 </style>
 <head style="text-align: center; font-family: Arial;">
+<!--Integration of bootstrap-->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 <!--<h1 style="text-align: center; font-family: Arial;">Last.fm Artist Graph</h1>-->
-<div style="display: block;">
+<div style="display: block;"> <!--Page top toolbar selectors-->
   <form id='userForm'>
   <input class="userInput" id="userTxt" type="text" value="chiefton117"></input>
   <input class="userInput" id="userNum" type="number" name="quantity"
    min="0" max="200" step="10" value="10"></input>
+      <input type="radio" id="sbtn" name="serviceBtn" value="Spotify"> <!--Radio buttons to select service-->
+      <label for="sbtn">Spotify</label>
+      <input type="radio" id="lfmbtn" name="serviceBtn" value="Last.fm">
+      <label for="lfmbtn">Last.fm</label>
   <input type="button" id="genbtn" value="Generate">
   <a href="index.html" style="text-align: right;"><p>home</p></a>
 </div>
@@ -40,6 +46,29 @@ text {
 <div class="container" width="100%" height="100%">
   <svg style="display: block; margin: auto; border: 1px solid black;" id="chart" width="1200" height="800"></svg>
 </div>
+
+<!--Spotify sign-in modal-->
+<div class="modal" tabindex="-1" role="dialog" id="spotifyModal">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Sign in to spotify</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Please sign in to access your user data!</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
 </body>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 <script src="https://d3js.org/d3.v4.min.js"></script>
@@ -55,6 +84,16 @@ $('#genbtn').click(function() {
       }
       if(window.firstClick) {
           window.firstClick = false;
+      }
+      var service = $("input[name='serviceBtn']:checked").val();
+      if(service == "Last.fm") {
+        
+      } else if(service == "Spotify") {
+        $('#spotifyModal').modal({
+          keyboard: true
+        });
+      } else {
+        alert("You must select one service to search by!")
       }
 
       var userTxt = $('#userTxt').val();
@@ -118,9 +157,10 @@ $('#genbtn').click(function() {
       }
 
 
-      console.log(window.artistData);
+      console.log(window.artistData); 
         
 
+      //Begin generation of graph itself
       var svg = d3.select("svg"),
       width = +svg.attr("width"),
       height = +svg.attr("height");
