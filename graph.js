@@ -1,6 +1,6 @@
 const numTags = 5; // Number of associated tags stored with an artist
 window.firstClick = true;
-window.numArtists = 0;
+window.numArtists;
 
 $(document).ready(function() {
 
@@ -91,13 +91,11 @@ function graph() {
       const scopes = [
         'user-top-read'
       ];
-      const redirect_uri = 'http://localhost:8080/MusicGraph.html';
-      const client_id = '2a0d1070d9a848e4baad8708897e2f72';
       const authEndpoint = 'https://accounts.spotify.com/authorize';
 
 
       if (!accessToken) {
-        window.location = `${authEndpoint}?client_id=${client_id}&redirect_uri=${redirect_uri}&scope=${scopes.join('%20')}&response_type=token&show_dialog=true`;
+        window.location = `${authEndpoint}?client_id=${window.client_id}&redirect_uri=${window.redirect_uri}&scope=${scopes.join('%20')}&response_type=token&show_dialog=true`;
         return;
       }
       document.getElementById("sbtn").checked = true; // Check the spotify radio dial for consistency
