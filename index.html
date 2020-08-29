@@ -24,28 +24,33 @@ p {
 
 </style>
 <head style="text-align: center; font-family: Arial;">
-<h3 style="text-align: center; font-family: Arial;">Last.fm Tag Count by User</h3>
-<div style="display: block;">
-  <form id='userForm'>
-  <input class="userInput" id="userTxt" type="text" value="chiefton117"></input>
-  <input class="userInput" id="userNum" type="number" name="quantity"
-   min="0" max="200" step="10" value="10"></input>
-  <input type="button" id="genbtn" value="Get">
-  <a href="MusicGraph.html" style="text-align: right;"><p>graph</p></a>
-</div>
-</form>
-<hr>
+  <div style="background-color: #F5F5F5;">
+    <h3 style="text-align: center; font-family: Arial;">Last.fm Tag Count by User</h3>
+    <div style="display: block;">
+      <form id='userForm'>
+      <input class="userInput" id="userTxt" type="text" value="chiefton117"></input>
+      <input class="userInput" id="userNum" type="number" name="quantity"
+       min="0" max="200" step="10" value="10"></input>
+      <input type="button" id="genbtn" value="Get">
+      <a href="MusicGraph.html" style="text-align: right;"><p>graph</p></a>
+    </div>
+    </form>
+    <hr>
+  </div>
 </head>
 <body>
 <output id="list"></output>
-<div class="container" id="AContainer" width="50%">
+<div class="container" id="AContainer" width="25%">
   <h5>Artists</h5>
 </div>
-<div class="container" id="TContainer" width="50%">
+<div class="container" id="TContainer" width="25%">
   <h5>Unweighted Tags</h5>
 </div>
-<div class="container" id="WContainer" width="50%">
+<div class="container" id="WContainer" width="25%">
   <h5>Weighted Tags</h5>
+</div>
+<div class="container" id="PContainer" width="25%">
+  <h5>% Makeup of Tags</h5>
 </div>
 </body>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
@@ -95,8 +100,10 @@ $('#genbtn').click(function() {
       document.getElementById("AContainer").appendChild(comp);
       var tagdict = {}; // Dictionary of artists and their tags
       var tagdictweighted = {}; // Dictionary of artists and weighted tags
+      var percentdict = {};
       var temp;
       var tempplay;
+      var totalPlays = 0;
       for(var i = 0; i < window.numArtists; i++) { // Iterate through every artist
 
         for(var j = 0; j < numTags; j++) { // Literally iterate through every tag :((((
@@ -128,9 +135,12 @@ $('#genbtn').click(function() {
               element.appendChild(text);
               document.getElementById("WContainer").appendChild(element);
           }
+          totalPlays += parseInt(tempplay); // Add plays to total
         }
       }
       
+
+
       if(window.artists[i]) { // Create box of artists
         var element = document.createElement("p");
         var text = document.createTextNode(window.artists[i].name);
@@ -142,8 +152,24 @@ $('#genbtn').click(function() {
 
       console.log(tagdict);
       console.log(tagdictweighted);
+      console.log("Total " + totalPlays);
       console.log(window.artists);
       
+      percentdict["Other"] = 0;
+      for(var i in tagdict) { // Create percentages for artists
+        var percent = (tagdict[i] / (Object.keys(tagdict).length) * 100).toFixed(2);
+        if(percent > 1) {
+          percentdict[i] = percent;
+        } else percentdict["Other"] = percentdict["Other"] + percent;
+        
+
+        var element = document.createElement("p"); // Create unweighted element for tag
+              var text = document.createTextNode(i + " : " + percentdict[i] + "%");
+              element.setAttribute('id', i + "percent");
+              element.appendChild(text);
+              document.getElementById("PContainer").appendChild(element);
+      }
+
       /*
       for(var i in window.artists) { // Create JSON object for each node
         var item = window.artists[i];

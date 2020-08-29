@@ -16,30 +16,38 @@ text {
   font-family: sans-serif;
   font-size: 10px;
 }
+head {
+  background-color: #EAD7D7;
+  text-align: center; 
+  font-family: verdana;
+}
 .container {
   display: block;
   margin: auto;
 }
 
 </style>
-<head style="text-align: center; font-family: Arial;">
-<!--Integration of bootstrap-->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-<!--<h1 style="text-align: center; font-family: Arial;">Last.fm Artist Graph</h1>-->
-<div style="display: block;"> <!--Page top toolbar selectors-->
-  <form id='userForm'>
-  <input class="userInput" id="userTxt" type="text" value="chiefton117"></input>
-  <input class="userInput" id="userNum" type="number" name="quantity"
-   min="0" max="200" step="10" value="10"></input>
-      <input type="radio" id="sbtn" name="serviceBtn" value="Spotify"> <!--Radio buttons to select service-->
-      <label for="sbtn">Spotify</label>
-      <input type="radio" id="lfmbtn" name="serviceBtn" value="Last.fm">
-      <label for="lfmbtn">Last.fm</label>
-  <input type="button" id="genbtn" value="Generate">
-  <a href="index.html" style="text-align: right;"><p>home</p></a>
-</div>
-</form>
-<hr>
+<head>
+  <div style="background-color: #F5F5F5;">
+  <!--Integration of bootstrap-->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <!--<h1 style="text-align: center; font-family: Arial;">Last.fm Artist Graph</h1>-->
+  <div style="display: block;"> <!--Page top toolbar selectors-->
+    <form id='userForm'>
+    <input class="userInput" id="userTxt" type="text" value="chiefton117"></input>
+    <input class="userInput" id="userNum" type="number" name="quantity"
+     min="0" max="200" step="10" value="10"></input>
+        <input type="radio" id="sbtn" name="serviceBtn" value="Spotify"> <!--Radio buttons to select service-->
+        <label for="sbtn">Spotify</label>
+        <input type="radio" id="lfmbtn" name="serviceBtn" value="Last.fm">
+        <label for="lfmbtn">Last.fm</label>
+    <input type="button" id="genbtn" value="Generate">
+    <a href="index.html" style="text-align: right;"><p>home</p></a>
+  </div>
+  </form>
+  <h4>Spotify count limited to 50 - Last.Fm count limited to 200</h4>
+  <hr>
+  </div>
 </head>
 <body>
 <output id="list"></output>
@@ -48,6 +56,7 @@ text {
 </div>
 
 <!--Spotify sign-in modal-->
+<!--
 <div class="modal" tabindex="-1" role="dialog" id="spotifyModal">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
@@ -66,11 +75,11 @@ text {
     </div>
   </div>
 </div>
-
+-->
 
 
 </body>
-<!-- The dependency gang >:(
+<!-- The dependency gang >:( -->
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
@@ -78,242 +87,5 @@ text {
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="http://requirejs.org/docs/release/2.1.5/comments/require.js"></script>
 <script src="spotjs/src/spotify-web-api.js"></script>
--->
-<script>
-const numTags = 5; // Number of associated tags stored with an artist
-window.firstClick = true;
 
-$(document).ready(function() {
-$('#genbtn').click(function() {
-
-      if(!window.firstClick) {
-          update();
-      }
-      if(window.firstClick) {
-          window.firstClick = false;
-      }
-      var service = $("input[name='serviceBtn']:checked").val();
-      if(service == "Last.fm") {
-        
-      } else if(service == "Spotify") {
-        $('#spotifyModal').modal('show');
-      
-        var spotifvar = 'spotjs/src/spotify-web-api';
-        require([spotifvar], function(result){
-            spotifvar = result;
-        });
-        var spotifyApi = new SpotifyWebApi();
-        
-        
-      } else {
-        alert("You must select one service to search by!")
-      }
-
-      var userTxt = $('#userTxt').val();
-      var userNum = $('#userNum').val();
-      window.numArtists;
-      window.artists = new Array();
-      var current;
-
-      $.when(ajax1(userTxt, userNum)).done(function(data1){
-        window.numArtists = data1.artists.artist.length;
-        for(var i = 0; i < window.numArtists; i++) { // Initialize each artist with name and empty array
-          current = data1.artists.artist[i].name;
-            $.when(ajax2(current)).done(function(data2) {
-            if(data2.toptags) {
-              var arr = new Array();
-                  for(var j = 0; j < numTags; j++) {
-                    arr[j] = data2.toptags.tag[j];
-                  }
-              window.artists[i] = {
-                name: current,
-                tags: arr
-              }
-            }
-            });
-        }
-      });
-
-
-      for(var i = 0; i < window.numArtists; i++) { // Iterate through every artist and their tag to get tag NAMES
-        for(var j = 0; j < numTags; j++) { // Literally iterate through every tag :((((
-          if(window.artists[i] && window.artists[i].tags[j]) { // If the artist and each tag exist
-          window.artists[i].tags[j] = window.artists[i].tags[j].name;
-        }
-      }
-      }
-      window.artistData = {
-        nodes: [],
-        links: []
-      };
-
-      for(var i in window.artists) { // Create JSON object for each node
-        var item = window.artists[i];
-        window.artistData.nodes.push({
-          "id" : item.name,
-          "group" : 1
-        });
-      }
-      for(var i in window.artists) { // Literally check everything against everything
-        var artist1 = window.artists[i];
-        for(var j = i+1; j < numArtists; j++) {
-          var artist2 = window.artists[j];
-        var commonTags = getCommonTags(artist1, artist2);
-          if(commonTags > 0) {
-            window.artistData.links.push({
-              "source" : artist1.name,
-              "target" : artist2.name,
-              "value" : commonTags
-            });
-          }
-        }
-      }
-
-
-      console.log(window.artistData); 
-        
-
-      //Begin generation of graph itself
-      var svg = d3.select("svg"),
-      width = +svg.attr("width"),
-      height = +svg.attr("height");
-
-      var color = d3.scaleOrdinal(d3.schemeCategory20);
-
-      var simulation = d3.forceSimulation()
-          .force("link", d3.forceLink().id(function(d) { return d.id; }).strength(function(d) {return (d.value / 500)})) // Strength is common tags / 100
-          .force("charge", d3.forceManyBody())
-          .force("center", d3.forceCenter(width / 2, height / 2));
-
-        var g = svg.append("g")
-            .attr("class", "everything");
-        
-        var link = g.append("g")
-            .attr("class", "links")
-          .selectAll("line")
-          .data(window.artistData.links)
-          .enter().append("line")
-            .attr("stroke-width", function(d) { return Math.sqrt(d.value); });
-
-        var node = g.append("g")
-            .attr("class", "nodes")
-          .selectAll("g")
-          .data(window.artistData.nodes)
-          .enter().append("g");
-        
-
-        var circles = node.append("circle")
-            .attr("r", 5)
-            .attr("fill", function(d) { return color(d.group); })
-            .call(d3.drag()
-                .on("start", dragstarted)
-                .on("drag", dragged)
-                .on("end", dragended));
-
-
-
-        var lables = node.append("text")
-            .text(function(d) {
-              return d.id;
-            })
-            .attr('x', 6)
-            .attr('y', 3);
-
-        node.append("title")
-            .text(function(d) { return d.id; });
-
-        simulation
-            .nodes(window.artistData.nodes)
-            .on("tick", ticked);
-
-        simulation.force("link")
-            .links(window.artistData.links);
-
-        var radius = 15;
-        node.attr("r", radius)
-
-        var zoom_handler = d3.zoom()
-            .on("zoom", zoomaction);
-
-        zoom_handler(svg);
-
-        function ticked() {
-          link
-              .attr("x1", function(d) { return d.source.x; })
-              .attr("y1", function(d) { return d.source.y; })
-              .attr("x2", function(d) { return d.target.x; })
-              .attr("y2", function(d) { return d.target.y; });
-/*
-          node
-            .attr("transform", function(d) { return "translate(" + (d.x = Math.max(radius, Math.min(width - radius, d.x))) + "," + (d.y = Math.max(radius, Math.min(height - radius, d.y))) + ")";
-             })
-*/
-          node
-            .attr("transform", function(d) {
-              return "translate(" + d.x + "," + d.y + ")";
-        })  
-        }
-
-        function zoomaction() { //zoom functionality
-          g.attr("transform", d3.event.transform)
-        }
-
-
-  function dragstarted(d) {
-    if (!d3.event.active) simulation.alphaTarget(0.3).restart();
-    d.fx = d.x;
-    d.fy = d.y;
-  }
-
-  function dragged(d) {
-    d.fx = d3.event.x;
-    d.fy = d3.event.y;
-  }
-
-  function dragended(d) {
-    if (!d3.event.active) simulation.alphaTarget(0);
-    d.fx = null;
-    d.fy = null;
-  }
-
-
-});
-});
-
-
-
-/*
-  Returns the NUMBER of common tags between any two given artists
-*/
-function getCommonTags(artist1, artist2) {
-  if(artist1 && artist2) {
-    var len = artist1.tags.filter(value => artist2.tags.includes(value)).length;
-    if(len) {
-      return len-1;
-    }
-  }
-}
-/*
-  Returns the JSON call for artists for a given user
-*/
-function ajax1(username, limit) {
-  return $.ajax({
-        dataType: 'json',
-        async: false,
-        url: 'http://ws.audioscrobbler.com/2.0/?method=library.getartists&api_key=943bdddf5707846447a81b95edae1537&user=' + username + '&limit=' + limit + '&format=json'
-      });
-}
-/*
-  Returns the JSON call for tags for a given artist
-*/
-function ajax2(name) {
-  return $.ajax({
-        dataType: 'json',
-        async: false,
-        url: "http://ws.audioscrobbler.com/2.0/?method=artist.gettoptags&artist=" + name + "&api_key=943bdddf5707846447a81b95edae1537&format=json"
-      });
-}
-
-
-
-</script>
+<script src="graph.js"></script>
