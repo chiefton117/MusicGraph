@@ -1,6 +1,10 @@
 const numTags = 5; // Number of associated tags stored with an artist
 window.firstClick = true;
 window.numArtists;
+window.artistData = {
+    nodes: [],
+    links: []
+  };
 
 $(document).ready(function() {
 
@@ -22,13 +26,13 @@ $(document).ready(function() {
       let accessToken = hash.access_token;
 
 
-      $('#genbtn').click(graph);
+      $('#genbtn').click(getData);
       if(accessToken) {
         service = "Spotify";
-        graph();
+        getData();
       }
 
-function graph() {
+function getData() {
 
      
       if(window.firstClick) {
@@ -39,10 +43,7 @@ function graph() {
       var userNum = $('#userNum').val();
 
       var current;
-      window.artistData = {
-          nodes: [],
-          links: []
-        };
+
 
 
       function btnLoop() { // Loop until one radio button is selcted
@@ -98,7 +99,6 @@ function graph() {
         window.numArtists = data.total; // correctly sets
         for(var i=0; i<data.total;i++) {
           current = data.items[i];
-
           window.artistData.nodes.push({
             "id" : current.name,
             "genres": current.genres,
@@ -125,10 +125,33 @@ function graph() {
             }
           }
         }
+     
+
+      for(var i=0;i<window.numArtists;i++) { // Create list on side of page
+        var artist = window.artistData.nodes[i];
+        var button = document.createElement("button");
+        button.setAttribute("data-toggle", "collapse");
+        button.setAttribute("data-target", "#artist" + i);
+        button.innerHTML = artist.id;
+
+        var element = document.createElement("div");
+        element.setAttribute("class", "collapse");
+        element.setAttribute("id", "artist" + i);
+        var tags = document.createElement("p");
+        tags.setAttribute("id", "tags" + i);
+        tags.innerHTML = artist.genres;
+
+        element.appendChild(tags);
+        var sidelist = document.getElementById("sidelist");
+
+        sidelist.appendChild(element);
+        sidelist.appendChild(button);
+
+      }
 
 
-      
 
+      console.log(window.artistData);
       //Begin generation of graph itself
       var svg = d3.select("svg"),
       width = +svg.attr("width"),
@@ -230,10 +253,8 @@ function graph() {
     d.fy = null;
   }
 
-
 }
 });
-
 
 
 /*
