@@ -30,18 +30,14 @@ $(document).ready(function() {
 
 function graph() {
 
-
-      if(!window.firstClick) {
-          update();
-      }
+     
       if(window.firstClick) {
           window.firstClick = false;
       }
 
       var userTxt = $('#userTxt').val();
       var userNum = $('#userNum').val();
-      
-      window.artists = new Array();
+
       var current;
       window.artistData = {
           nodes: [],
@@ -49,9 +45,14 @@ function graph() {
         };
 
 
-      if(!service) {
+      function btnLoop() { // Loop until one radio button is selcted
+        if(!service) {
         service = $("input[name='serviceBtn']:checked").val();
+
+        setTimeout(btnLoop, 500);
+        }
       }
+      btnLoop();
       if(service == "Last.fm") {
         
 
@@ -59,34 +60,27 @@ function graph() {
           window.numArtists = data1.artists.artist.length;
           for(var i = 0; i < window.numArtists; i++) { // Initialize each artist with name and empty array
             current = data1.artists.artist[i].name;
+            if(current) {
               $.when(ajax2(current)).done(function(data2) {
+              var arr = new Array();
               if(data2.toptags) {
-                var arr = new Array();
                     for(var j = 0; j < numTags; j++) {
-                      arr[j] = data2.toptags.tag[j];
+                      if(data2.toptags.tag[j]) arr[j] = data2.toptags.tag[j].name;
                     }
-                window.artists[i] = {
-                  name: current,
-                  tags: arr
-                }
               }
+            window.artistData.nodes.push({
+            "id" : current,
+            "genres": arr,
+            "group" : 1
+          });
               });
+            }
           }
         });
-
-
-        for(var i = 0; i < window.numArtists; i++) { // Iterate through every artist and their tag to get tag NAMES
-          for(var j = 0; j < numTags; j++) { // Literally iterate through every tag :((((
-            if(window.artists[i] && window.artists[i].tags[j]) { // If the artist and each tag exist
-            window.artists[i].tags[j] = window.artists[i].tags[j].name;
-          }
-        }
-        }
-        
+  
 
 
       } else if(service == "Spotify") {
-        //$('#spotifyModal').modal('show');
       
       const scopes = [
         'user-top-read'
@@ -104,34 +98,28 @@ function graph() {
         window.numArtists = data.total; // correctly sets
         for(var i=0; i<data.total;i++) {
           current = data.items[i];
-          window.artists[i] = {
-            name: current.name,
-            tags: current.genres
-          }
+
+          window.artistData.nodes.push({
+            "id" : current.name,
+            "genres": current.genres,
+            "group" : 1
+          });
         }
       });
         
       } else {
         alert("you must select one service to search by");
       }
-        for(var i=0;i<window.numArtists;i++) { // Create JSON object for each node
-          var item = window.artists[i];
-          window.artistData.nodes.push({
-            "id" : item.name,
-            "genres": item.tags,
-            "group" : 1
-          });
-        }
 
         for(var i=0;i<window.numArtists;i++) { // Literally check everything against everything
-          var artist1 = window.artists[i];
+          var artist1 = window.artistData.nodes[i];
           for(var j=i+1;j<numArtists;j++) {
-            var artist2 = window.artists[j];
-          var commonTags = getCommonTags(artist1, artist2);
+            var artist2 = window.artistData.nodes[j];
+          var commonTags = getCommonTagNum(artist1.genres, artist2.genres);
             if(commonTags > 0) {
               window.artistData.links.push({
-                "source" : artist1.name,
-                "target" : artist2.name,
+                "source" : artist1.id,
+                "target" : artist2.id,
                 "value" : commonTags
               });
             }
@@ -251,13 +239,22 @@ function graph() {
 /*
   Returns the NUMBER of common tags between any two given artists
 */
-function getCommonTags(artist1, artist2) {
+function getCommonTagNum(artist1, artist2) {
   if(artist1 && artist2) {
-    var len = artist1.tags.filter(value => artist2.tags.includes(value)).length;
+    var len = artist1.filter(value => artist2.includes(value)).length;
     if(len) {
       return len-1;
     } else return 0;
   }
+}
+/*
+  Returns the common tags between any two given artists
+*/
+function getCommonTags(artist1, artist2) {
+  if(artist1 && artist2) {
+    return artist1.filter(value => artist2.includes(value));
+  }
+  return null;
 }
 /*
   Returns the Last.Fm JSON call for artists for a given user
