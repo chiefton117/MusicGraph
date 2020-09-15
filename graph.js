@@ -1,5 +1,6 @@
-const numTags = 5; // Number of associated tags stored with an artist
+window.numTags = 10;
 window.firstClick = true;
+
 window.numArtists;
 window.artistData = {
     nodes: [],
@@ -8,7 +9,7 @@ window.artistData = {
 
 $(document).ready(function() {
 
-
+      
       var service;
       const hash = window.location.hash
       .substring(1)
@@ -25,27 +26,38 @@ $(document).ready(function() {
       // Set token
       let accessToken = hash.access_token;
 
+      
+      
+      
 
-      $('#genbtn').click(getData);
+
       if(accessToken) {
         service = "Spotify";
         getData();
+      } else {
       }
 
-function getData() {
+      $('#genbtn').click(function() {
+        document.cookie = $('#userNum').val();
+        getData();
+      });
+      
+      
 
+function getData() {
+      $('#progresscontainer').show(); // Show progress bar
      
       if(window.firstClick) {
           window.firstClick = false;
       }
 
-      var userTxt = $('#userTxt').val();
-      var userNum = $('#userNum').val();
 
+      const userTxt = $('#userTxt').val();
+      const userNum = document.cookie;
+    
       var current;
 
-
-
+ 
       function btnLoop() { // Loop until one radio button is selcted
         if(!service) {
         service = $("input[name='serviceBtn']:checked").val();
@@ -54,32 +66,37 @@ function getData() {
         }
       }
       btnLoop();
+      
       if(service == "Last.fm") {
-        
-
           $.when(ajax1(userTxt, userNum)).done(function(data1){
           window.numArtists = data1.artists.artist.length;
           for(var i = 0; i < window.numArtists; i++) { // Initialize each artist with name and empty array
+            var linked = new Array();
             current = data1.artists.artist[i].name;
             if(current) {
               $.when(ajax2(current)).done(function(data2) {
               var arr = new Array();
               if(data2.toptags) {
-                    for(var j = 0; j < numTags; j++) {
-                      if(data2.toptags.tag[j]) arr[j] = data2.toptags.tag[j].name;
+                    console.log(data2.toptags);
+                    for(var j = 0; j < window.numTags; j++) { // TODO maybe replace with more?
+                      if(data2.toptags.tag[j]) arr[j] = data2.toptags.tag[j].name.toLowerCase();
                     }
               }
             window.artistData.nodes.push({
             "id" : current,
             "genres": arr,
+            "linked": linked,
             "group" : 1
           });
               });
             }
+
+          var progress = ((i / (window.numArtists-1)) * 100).toFixed(2);
+          $('#progress').css('width', progress + "%").html(progress + "%"); // Update progress bar
+
           }
         });
   
-
 
       } else if(service == "Spotify") {
       
@@ -93,17 +110,25 @@ function getData() {
         window.location = `${authEndpoint}?client_id=${window.client_id}&redirect_uri=${window.redirect_uri}&scope=${scopes.join('%20')}&response_type=token&show_dialog=true`;
         return;
       }
+      $('#userNum').val(userNum);
       document.getElementById("sbtn").checked = true; // Check the spotify radio dial for consistency
 
       $.when(spotifyAjax(accessToken, userNum % 50)).done(function(data) {
         window.numArtists = data.total; // correctly sets
-        for(var i=0; i<data.total;i++) {
+        for(var i=0; i<window.numArtists;i++) {
+          var linked = new Array();
           current = data.items[i];
+          if(current) {
           window.artistData.nodes.push({
             "id" : current.name,
             "genres": current.genres,
+            "linked": linked,
             "group" : 1
           });
+        }
+          var progress = ((i / (window.numArtists-1)) * 100).toFixed(2);
+          $('#progress').css('width', progress + "%").html(progress + "%"); // Update progress bar
+
         }
       });
         
@@ -111,32 +136,41 @@ function getData() {
         alert("you must select one service to search by");
       }
 
+
+
         for(var i=0;i<window.numArtists;i++) { // Literally check everything against everything
           var artist1 = window.artistData.nodes[i];
-          for(var j=i+1;j<numArtists;j++) {
+          for(var j=i+1;j<window.numArtists;j++) {
             var artist2 = window.artistData.nodes[j];
-          var commonTags = getCommonTagNum(artist1.genres, artist2.genres);
+            var commonTags = getCommonTagNum(artist1.genres, artist2.genres);
+            
             if(commonTags > 0) {
               window.artistData.links.push({
                 "source" : artist1.id,
                 "target" : artist2.id,
                 "value" : commonTags
               });
+              window.artistData.nodes[i].linked.push(artist2.id + "," + commonTags);
+              window.artistData.nodes[j].linked.push(artist1.id + "," + commonTags);
             }
           }
-        }
-     
+        
 
+        }
+     $('#progresscontainer').hide(); // Hide progress bar
+
+
+/*
       for(var i=0;i<window.numArtists;i++) { // Create list on side of page
         var artist = window.artistData.nodes[i];
         var button = document.createElement("button");
         button.setAttribute("data-toggle", "collapse");
-        button.setAttribute("data-target", "#artist" + i);
+        button.setAttribute("data-target", "#" + artist.id);
         button.innerHTML = artist.id;
 
         var element = document.createElement("div");
         element.setAttribute("class", "collapse");
-        element.setAttribute("id", "artist" + i);
+        element.setAttribute("id", artist.id);
         var tags = document.createElement("p");
         tags.setAttribute("id", "tags" + i);
         tags.innerHTML = artist.genres;
@@ -144,14 +178,14 @@ function getData() {
         element.appendChild(tags);
         var sidelist = document.getElementById("sidelist");
 
-        sidelist.appendChild(element);
         sidelist.appendChild(button);
+        sidelist.appendChild(element);
+        
 
       }
+*/
 
 
-
-      console.log(window.artistData);
       //Begin generation of graph itself
       var svg = d3.select("svg"),
       width = +svg.attr("width"),
@@ -160,7 +194,7 @@ function getData() {
       var color = d3.scaleOrdinal(d3.schemeCategory20);
 
       var simulation = d3.forceSimulation()
-          .force("link", d3.forceLink().id(function(d) { return d.id; }).strength(function(d) {return (d.value / 500)})) // Strength is common tags / 100
+          .force("link", d3.forceLink().id(function(d) { return d.id; }).strength(function(d) {return (d.value / 5000)})) // Strength is common tags / 100
           .force("charge", d3.forceManyBody())
           .force("center", d3.forceCenter(width / 2, height / 2));
 
@@ -172,13 +206,19 @@ function getData() {
           .selectAll("line")
           .data(window.artistData.links)
           .enter().append("line")
-            .attr("stroke-width", function(d) { return Math.sqrt(d.value); });
+            .attr("stroke-width", 1);
 
         var node = g.append("g")
             .attr("class", "nodes")
           .selectAll("g")
           .data(window.artistData.nodes)
           .enter().append("g");
+
+        node.on("click", function(d) { // SET ONCLICK FUNCTIONALITY For artist spotlight
+          $("#spotlight").text(d.id);
+          $("#taglist").text(d.genres.join(' - '));
+          $("#linklist").text(d.linked.join("\n"));
+        });  
         
 
         var circles = node.append("circle")
@@ -198,7 +238,7 @@ function getData() {
 
         node.append("title")
             .text(function(d) { return d.genres; });
-
+        
         simulation
             .nodes(window.artistData.nodes)
             .on("tick", ticked);
@@ -208,6 +248,7 @@ function getData() {
 
         var radius = 15;
         node.attr("r", radius)
+
 
         var zoom_handler = d3.zoom()
             .on("zoom", zoomaction);
@@ -232,7 +273,7 @@ function getData() {
         }
 
         function zoomaction() { //zoom functionality
-          g.attr("transform", d3.event.transform)
+          g.attr("transform", d3.event.transform);
         }
 
 
@@ -264,7 +305,7 @@ function getCommonTagNum(artist1, artist2) {
   if(artist1 && artist2) {
     var len = artist1.filter(value => artist2.includes(value)).length;
     if(len) {
-      return len-1;
+      return len;
     } else return 0;
   }
 }
@@ -298,6 +339,8 @@ function ajax2(name) {
       });
 }
 function spotifyAjax(accessToken, limit) {
+  console.log("token " + accessToken);
+  console.log("limit " + limit);
   return $.ajax({
    url: 'https://api.spotify.com/v1/me/top/artists/?limit=' + limit,
    async: false,

@@ -17,20 +17,20 @@ body {
   stroke-width: 1.5px;
 }
 
-text {
-  font-family: sans-serif;
-  font-size: 10px;
+* {
+  font-family: 'Roboto', sans-serif;
 }
 head {
   background-color: #EAD7D7;
-  text-align: center; 
-  font-family: verdana;
+  text-align: center;
+  font-weight: 400;
 }
 .container {
   position: relative;
   display: block;
   clear: both;
   margin: 0px;
+  white-space: pre-line;
 }
 #chart {
   float: left;
@@ -42,9 +42,22 @@ head {
 #sidelist {
   float: right;
   width: 20%;
+  text-align: center;
+  font-weight: 100;
 }
 
 </style>
+<!-- The dependency gang >:( -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="http://requirejs.org/docs/release/2.1.5/comments/require.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;400;700&display=swap" rel="stylesheet"> 
+<script type="text/javascript" src="tokens.js"></script>
+<script type="text/javascript" src="graph.js"></script>
+
 <head>
   <div style="background-color: #F5F5F5;">
   <!--Integration of bootstrap-->
@@ -64,26 +77,39 @@ head {
   </div>
   </form>
   <h4>Spotify count limited to 50 - Last.Fm count limited to 200</h4>
+  <ul class="nav nav-tabs" role="tablist">
+    <li class="nav-item">
+      <a class="nav-link active" data-toggle="tab" href="#graph" role="tab">Graph</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" data-toggle="tab" href="#stats" role="tab">Stats</a>
+    </li>
   <hr>
   </div>
 </head>
-<body>
-<div class="container" width="100%" height="100%">
-  <svg id="chart"></svg>
-  <div id="sidelist">
-  </div>
 
+<body>
+<div class="tab-content">
+
+<div class="tab-pane active" id="graph" role="tabpanel">
+<div class="container overflow-auto" width="100%" height="100%">
+  <svg id="chart"></svg>
+  <div class="overflow-auto" id="sidelist">
+    <h1 id="spotlight">Artist</h1>
+    <p id="taglist"></p>
+    <p id= "linklist"></p>
+  </div>
+</div>
+</div>
+<div class="tab-pane active" id="stats" role="tabpanel">
+  <p>hi!</p>
+</div>
+
+</div>
+<div id="progresscontainer" class="progress" style="display: none;">
+  <div class="progress-bar progress-bar-striped bg-info progress-bar-animated" role="progressbar" id="progress" style="width: 0%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">0%</div>
 </div>
 
 
 </body>
-<!-- The dependency gang >:( -->
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
-<script src="https://d3js.org/d3.v4.min.js"></script>
-<script src="http://requirejs.org/docs/release/2.1.5/comments/require.js"></script>
-
-<script type="text/javascript" src="tokens.js"></script>
-<script type="text/javascript" src="graph.js"></script>
