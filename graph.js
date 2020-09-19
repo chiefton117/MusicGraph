@@ -35,6 +35,7 @@ $(document).ready(function() {
         service = "Spotify";
         getData();
       } else {
+        document.cookie = null;
       }
 
       $('#genbtn').click(function() {
@@ -45,7 +46,9 @@ $(document).ready(function() {
       
 
 function getData() {
+      $('#genbtn').attr("disabled", "true");
       $('#progresscontainer').show(); // Show progress bar
+    
      
       if(window.firstClick) {
           window.firstClick = false;
@@ -54,7 +57,8 @@ function getData() {
 
       const userTxt = $('#userTxt').val();
       const userNum = document.cookie;
-    
+
+
       var current;
 
  
@@ -68,69 +72,70 @@ function getData() {
       btnLoop();
       
       if(service == "Last.fm") {
-          $.when(ajax1(userTxt, userNum)).done(function(data1){
-          window.numArtists = data1.artists.artist.length;
-          for(var i = 0; i < window.numArtists; i++) { // Initialize each artist with name and empty array
-            var linked = new Array();
-            current = data1.artists.artist[i].name;
-            if(current) {
-              $.when(ajax2(current)).done(function(data2) {
-              var arr = new Array();
-              if(data2.toptags) {
-                    console.log(data2.toptags);
-                    for(var j = 0; j < window.numTags; j++) { // TODO maybe replace with more?
-                      if(data2.toptags.tag[j]) arr[j] = data2.toptags.tag[j].name.toLowerCase();
-                    }
+            $.when(ajax1(userTxt, userNum)).done(function(data1){
+            window.numArtists = data1.artists.artist.length;
+            for(var i = 0; i < window.numArtists; i++) { // Initialize each artist with name and empty array
+              var linked = new Array();
+              current = data1.artists.artist[i].name;
+              if(current) {
+                $.when(ajax2(current)).done(function(data2) {
+                var arr = new Array();
+                if(data2.toptags) {
+                      for(var j = 0; j < window.numTags; j++) { // TODO maybe replace with more?
+                        if(data2.toptags.tag[j]) arr[j] = data2.toptags.tag[j].name.toLowerCase();
+                      }
+                }
+              window.artistData.nodes.push({
+              "id" : current,
+              "genres": arr,
+              "linked": linked,
+              "group" : 1
+            });
+                });
               }
-            window.artistData.nodes.push({
-            "id" : current,
-            "genres": arr,
-            "linked": linked,
-            "group" : 1
-          });
-              });
+
+            var progress = ((i / (window.numArtists-1)) * 100).toFixed(2);
+            $('#progress').css('width', progress + "%").html(progress + "%"); // Update progress bar
+
             }
-
-          var progress = ((i / (window.numArtists-1)) * 100).toFixed(2);
-          $('#progress').css('width', progress + "%").html(progress + "%"); // Update progress bar
-
-          }
         });
   
 
       } else if(service == "Spotify") {
       
-      const scopes = [
-        'user-top-read'
-      ];
-      const authEndpoint = 'https://accounts.spotify.com/authorize';
+          const scopes = [
+            'user-top-read'
+          ];
+          const authEndpoint = 'https://accounts.spotify.com/authorize';
 
 
-      if (!accessToken) {
-        window.location = `${authEndpoint}?client_id=${window.client_id}&redirect_uri=${window.redirect_uri}&scope=${scopes.join('%20')}&response_type=token&show_dialog=true`;
-        return;
-      }
-      $('#userNum').val(userNum);
-      document.getElementById("sbtn").checked = true; // Check the spotify radio dial for consistency
+          if (!accessToken) {
+            window.location = `${authEndpoint}?client_id=${window.client_id}&redirect_uri=${window.redirect_uri}&scope=${scopes.join('%20')}&response_type=token&show_dialog=true`;
+            return;
+          }
 
-      $.when(spotifyAjax(accessToken, userNum % 50)).done(function(data) {
-        window.numArtists = data.total; // correctly sets
-        for(var i=0; i<window.numArtists;i++) {
-          var linked = new Array();
-          current = data.items[i];
-          if(current) {
-          window.artistData.nodes.push({
-            "id" : current.name,
-            "genres": current.genres,
-            "linked": linked,
-            "group" : 1
+          //If we've reached this part of the code, it means an access token has been granted
+          $('#userNum').val(userNum);
+          document.getElementById("sbtn").checked = true; // Check the spotify radio dial for consistency
+
+          $.when(spotifyAjax(accessToken, userNum % 50)).done(function(data) {
+            window.numArtists = data.total; // correctly sets
+            for(var i=0; i<window.numArtists;i++) {
+              var linked = new Array();
+              current = data.items[i];
+              if(current) {
+              window.artistData.nodes.push({
+                "id" : current.name,
+                "genres": current.genres,
+                "linked": linked,
+                "group" : 1
+              });
+            }
+              var progress = ((i / (window.numArtists-1)) * 100).toFixed(2);
+              $('#progress').css('width', progress + "%").html(progress + "%"); // Update progress bar
+
+            }
           });
-        }
-          var progress = ((i / (window.numArtists-1)) * 100).toFixed(2);
-          $('#progress').css('width', progress + "%").html(progress + "%"); // Update progress bar
-
-        }
-      });
         
       } else {
         alert("you must select one service to search by");
@@ -216,8 +221,12 @@ function getData() {
 
         node.on("click", function(d) { // SET ONCLICK FUNCTIONALITY For artist spotlight
           $("#spotlight").text(d.id);
-          $("#taglist").text(d.genres.join(' - '));
-          $("#linklist").text(d.linked.join("\n"));
+          $("#taglist").text(d.genres.join("\n"));
+          $("#linklist").text(d.linked.sort(function(a,b) { // Sort by # of common tags
+            var f = parseInt(a.split(",")[1]);
+            var s = parseInt(b.split(",")[1]);
+            return s - f;
+          }).join("\n"));
         });  
         
 
@@ -296,7 +305,6 @@ function getData() {
 
 }
 });
-
 
 /*
   Returns the NUMBER of common tags between any two given artists
