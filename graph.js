@@ -50,15 +50,24 @@ function genGraph() {
         });  
 
         node.on("mouseover", function(d) { // Highlight links
-          console.log(link);
           link
-          .style('stroke', function (link_d) { return link_d.source === d.id || link_d.target === d.id ? '#FF5733' : '#999';})
+          .style('stroke', function (link_d) { return link_d.source === d.id || link_d.target === d.id ? '#FF5733' : '#999'; })
           .style('stroke-width', function (link_d) { return link_d.source === d.id || link_d.target === d.id ? 4 : 1;});
+
+          node
+          .style('fill', function(link_n) {
+            return d.linked.includes(link_n.id) ? '#FF5733' : '#000000';
+          });
+
           d3.select(this).select("circle").style("fill", "#FF5733");
-          d3.selectAll()
         });
+
+
         node.on("mouseout", function(d) {
           d3.select(this).select("circle").style("fill", "#1f77b4");
+
+          //d3.selectAll(node).style('fill', "#000000");
+          
         }); 
         
 

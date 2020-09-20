@@ -159,8 +159,10 @@ $(document).ready(function() {
                   "target" : artist2.id,
                   "value" : commonTags
                 });
-                window.artistData.nodes[i].linked.push(artist2.id + "," + commonTags);
-                window.artistData.nodes[j].linked.push(artist1.id + "," + commonTags);
+                //window.artistData.nodes[i].linked.push(artist2.id + "," + commonTags);
+                //window.artistData.nodes[j].linked.push(artist1.id + "," + commonTags);
+                window.artistData.nodes[i].linked.push(artist2.id);
+                window.artistData.nodes[j].linked.push(artist1.id);
               }
             }
           }
