@@ -48,6 +48,18 @@ function genGraph() {
             return s - f;
           }).join("\n"));
         });  
+
+        node.on("mouseover", function(d) { // Highlight links
+          console.log(link);
+          link
+          .style('stroke', function (link_d) { return link_d.source === d.id || link_d.target === d.id ? '#FF5733' : '#999';})
+          .style('stroke-width', function (link_d) { return link_d.source === d.id || link_d.target === d.id ? 4 : 1;});
+          d3.select(this).select("circle").style("fill", "#FF5733");
+          d3.selectAll()
+        });
+        node.on("mouseout", function(d) {
+          d3.select(this).select("circle").style("fill", "#1f77b4");
+        }); 
         
 
         var circles = node.append("circle")
