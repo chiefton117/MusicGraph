@@ -16,7 +16,9 @@ body {
   stroke: #fff;
   stroke-width: 1.5px;
 }
-
+p {
+  white-space: pre-line;
+}
 * {
   font-family: 'Roboto', sans-serif;
 }
@@ -30,18 +32,24 @@ head {
   display: block;
   clear: both;
   margin: 0px;
-  white-space: pre-line;
+  
 }
 #chart {
   float: left;
   border: 1px solid black;
-  width: 70%;
+  width: 50%;
   min-height: 800px;
   vertical-align: middle;
 }
 #sidelist {
   float: right;
-  width: 30%;
+  width: 25%;
+  text-align: center;
+  font-weight: 400;
+}
+#statlist {
+  float: left;
+  width: 10%;
   text-align: center;
   font-weight: 100;
 }
@@ -58,6 +66,7 @@ head {
 <script type="text/javascript" src="tokens.js"></script>
 <script type="text/javascript" src="graph.js"></script>
 <script type="text/javascript" src="api.js"></script>
+<script type="text/javascript" src="stats.js"></script>
 
 
 <head>
@@ -68,13 +77,18 @@ head {
   <div style="display: block;"> <!--Page top toolbar selectors-->
     <form id='userForm'>
     <input class="userInput" id="userTxt" type="text" value="chiefton117"></input>
+    <input type="radio" id="lfmbtn" name="serviceBtn" value="Last.fm">
+    <label for="lfmbtn">Last.fm</label>
+
+    <input type="radio" id="sbtn" name="serviceBtn" value="Spotify"> <!--Radio buttons to select service-->
+    <label for="sbtn">Spotify (Requires Login)</label>
+        
     <input class="userInput" id="userNum" type="number" name="quantity"
-     min="0" max="200" step="10" value="10"></input>
-        <input type="radio" id="sbtn" name="serviceBtn" value="Spotify"> <!--Radio buttons to select service-->
-        <label for="sbtn">Spotify</label>
-        <input type="radio" id="lfmbtn" name="serviceBtn" value="Last.fm">
-        <label for="lfmbtn">Last.fm</label>
+     min="0" max="200" step="10" value="10" style="margin-left:20%"></input>
+     <label for="userNum"># of Artists</label>
+
     <input type="button" id="genbtn" value="Generate">
+    
     <a href="index.html" style="text-align: right;"><p>home</p></a>
   </div>
   </form>
@@ -94,7 +108,7 @@ head {
 <div class="tab-content">
 
 <div class="tab-pane active" id="graph" role="tabpanel">
-<div class="container overflow-auto" width="100%" height="100%">
+<div class="overflow-auto" width="100%" height="100%">
   <svg id="chart"></svg>
   <div class="overflow-auto" id="sidelist">
     <h1 id="spotlight">Artist</h1>
@@ -104,9 +118,16 @@ head {
       <p class="col-md-6" id= "linklist"></p>
     </div>
   </div>
+
+  <div class="overflow-auto" id="statlist">
+    <h1 id="spotlight">Statistics</h1>
+    <hr>
+      <p class="col-md-6" id=""></p>
+  </div>
+
 </div>
 </div>
-<div class="tab-pane active" id="stats" role="tabpanel">
+<div class="tab-pane" id="stats" role="tabpanel">
   <p>hi!</p>
 </div>
 

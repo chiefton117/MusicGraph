@@ -2,6 +2,7 @@ window.numTags = 10;
 window.firstClick = true;
 
 window.numArtists;
+window.genres = [];
 window.artistData = {
     nodes: [],
     links: []
@@ -145,6 +146,9 @@ $(document).ready(function() {
 
           for(var i=0;i<window.numArtists;i++) { // Literally check everything against everything
             var artist1 = window.artistData.nodes[i];
+
+            window.genres = window.genres.concat(artist1.genres.filter(value => !window.genres.includes(value))); // Add unique values to genres
+
             for(var j=i+1;j<window.numArtists;j++) {
               var artist2 = window.artistData.nodes[j];
               var commonTags = getCommonTagNum(artist1.genres, artist2.genres);
@@ -159,11 +163,13 @@ $(document).ready(function() {
                 window.artistData.nodes[j].linked.push(artist1.id + "," + commonTags);
               }
             }
-          
-
           }
+
+
        $('#progresscontainer').hide(); // Hide progress bar
+      window.genres.sort(); // sort all genres alphabetically
       genGraph();
+      genStats();
     }
 });
 

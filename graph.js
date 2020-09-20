@@ -1,7 +1,5 @@
 
 function genGraph() {
-      console.log(window.artists);
-      console.log(window.artistData);
       //Begin generation of graph itself
       var svg = d3.select("svg"),
       width = +svg.attr("width"),
@@ -22,13 +20,24 @@ function genGraph() {
           .selectAll("line")
           .data(window.artistData.links)
           .enter().append("line")
-            .attr("stroke-width", 1);
+          .attr("stroke-width", 1);
 
         var node = g.append("g")
             .attr("class", "nodes")
           .selectAll("g")
           .data(window.artistData.nodes)
           .enter().append("g");
+
+        /*var legend = g.append("g")
+            .attr("class", "genres")
+            .attr("x", 0)
+            .attr("y", 0)
+          .selectAll("input")
+          .data(window.genres)
+          .enter().append("input")
+          .attr("id", function(d) {return d;})
+          .attr("type", "checkbox")
+          .text(function(d) {return d;});*/
 
         node.on("click", function(d) { // SET ONCLICK FUNCTIONALITY For artist spotlight
           $("#spotlight").text(d.id);
@@ -56,8 +65,8 @@ function genGraph() {
             .attr('x', 6)
             .attr('y', 3);
 
-        node.append("title")
-            .text(function(d) { return d.genres; });
+        //node.append("title")
+        //    .text(function(d) { return d.genres; });
         
         simulation
             .nodes(window.artistData.nodes)
