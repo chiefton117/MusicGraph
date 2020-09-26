@@ -28,16 +28,6 @@ function genGraph() {
           .data(window.artistData.nodes)
           .enter().append("g");
 
-        /*var legend = g.append("g")
-            .attr("class", "genres")
-            .attr("x", 0)
-            .attr("y", 0)
-          .selectAll("input")
-          .data(window.genres)
-          .enter().append("input")
-          .attr("id", function(d) {return d;})
-          .attr("type", "checkbox")
-          .text(function(d) {return d;});*/
 
         node.on("click", function(d) { // SET ONCLICK FUNCTIONALITY For artist spotlight
 
@@ -68,7 +58,7 @@ function genGraph() {
             var s = parseInt(b.split(",")[1]);
             return s - f;
           }).join("\n"));
-          
+
         });  
 
         var circles = node.append("circle")
@@ -86,8 +76,6 @@ function genGraph() {
             .attr('x', 6)
             .attr('y', 3);
 
-        //node.append("title")
-        //    .text(function(d) { return d.genres; });
         
         simulation
             .nodes(window.artistData.nodes)
@@ -122,9 +110,13 @@ function genGraph() {
         })  
         }
 
+
         function zoomaction() { //zoom functionality
           g.attr("transform", d3.event.transform);
         }
+
+
+
 
 
   function dragstarted(d) {
