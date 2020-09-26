@@ -47,14 +47,11 @@ $(document).ready(function() {
       
 
   function getData() {
-        $('#genbtn').attr("disabled", "true");
-        $('#progresscontainer').show(); // Show progress bar
-      
+
        
         if(window.firstClick) {
             window.firstClick = false;
         }
-
 
         const userTxt = $('#userTxt').val();
         const userNum = document.cookie;
@@ -62,7 +59,6 @@ $(document).ready(function() {
 
         var current;
 
-   
         function btnLoop() { // Loop until one radio button is selcted
           if(!service) {
           service = $("input[name='serviceBtn']:checked").val();
@@ -72,6 +68,9 @@ $(document).ready(function() {
         }
         btnLoop();
         
+        $('#genbtn').attr("disabled", "true");
+        $('#progresscontainer').show(); // Show progress bar
+
         if(service == "Last.fm") {
               $.when(ajax1(userTxt, userNum)).done(function(data1){
               window.numArtists = data1.artists.artist.length;
