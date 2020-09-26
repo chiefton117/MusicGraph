@@ -40,36 +40,36 @@ function genGraph() {
           .text(function(d) {return d;});*/
 
         node.on("click", function(d) { // SET ONCLICK FUNCTIONALITY For artist spotlight
-          $("#spotlight").text(d.id);
+
+          node.selectAll("circle").style('fill', '#1f77b4'); // De-select everything prior
+          d3.selectAll(".links>line")
+          .style('stroke', '#999')
+          .style('stroke-width', '1');
+
+
+          d3.selectAll(".links>line").filter(function(link_d) {
+            return link_d.source.id == d.id || link_d.target.id == d.id;
+          })
+          .style('stroke', '#FF5733')
+          .style('stroke-width', '3');
+
+          node
+          .select("circle").style('fill', function(link_n) {
+            return d.linked.includes(link_n.id)  ? '#FF5733' : '#1f77b4';
+          });
+
+          d3.select(this).select("circle").style("fill", "#FF5733");
+
+
+          $("#spotlight").text(d.id); // Create spotlight list
           $("#taglist").text(d.genres.join("\n"));
           $("#linklist").text(d.linked.sort(function(a,b) { // Sort by # of common tags
             var f = parseInt(a.split(",")[1]);
             var s = parseInt(b.split(",")[1]);
             return s - f;
           }).join("\n"));
-        });  
-
-        node.on("mouseover", function(d) { // Highlight links
-          link
-          .style('stroke', function (link_d) { return link_d.source === d.id || link_d.target === d.id ? '#FF5733' : '#999'; })
-          .style('stroke-width', function (link_d) { return link_d.source === d.id || link_d.target === d.id ? 4 : 1;});
-
-          node
-          .style('fill', function(link_n) {
-            return d.linked.includes(link_n.id) ? '#FF5733' : '#000000';
-          });
-
-          d3.select(this).select("circle").style("fill", "#FF5733");
-        });
-
-
-        node.on("mouseout", function(d) {
-          d3.select(this).select("circle").style("fill", "#1f77b4");
-
-          //d3.selectAll(node).style('fill', "#000000");
           
-        }); 
-        
+        });  
 
         var circles = node.append("circle")
             .attr("r", 5)

@@ -53,6 +53,11 @@ head {
   text-align: center;
   font-weight: 100;
 }
+label {
+  display: flex;
+  align-items: center;
+
+}
 
 </style>
 <!-- The dependency gang >:( -->
@@ -75,33 +80,35 @@ head {
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
   <!--<h1 style="text-align: center; font-family: Arial;">Last.fm Artist Graph</h1>-->
   <div style="display: block;"> <!--Page top toolbar selectors-->
-    <form id='userForm'>
-    <input class="userInput" id="userTxt" type="text" value="chiefton117"></input>
-    <input type="radio" id="lfmbtn" name="serviceBtn" value="Last.fm">
-    <label for="lfmbtn">Last.fm</label>
+      <form id='userForm'>
+      <input class="userInput" id="userTxt" type="text" value="chiefton117"></input>
+      <input type="radio" id="lfmbtn" name="serviceBtn" value="Last.fm">
+      <label for="lfmbtn">Last.fm</label>
 
-    <input type="radio" id="sbtn" name="serviceBtn" value="Spotify"> <!--Radio buttons to select service-->
-    <label for="sbtn">Spotify (Requires Login)</label>
-        
-    <input class="userInput" id="userNum" type="number" name="quantity"
-     min="0" max="200" step="10" value="10" style="margin-left:20%"></input>
-     <label for="userNum"># of Artists</label>
+      <input type="radio" id="sbtn" name="serviceBtn" value="Spotify"> <!--Radio buttons to select service-->
+      <label for="sbtn">Spotify (Requires Login)</label>
+          
+      <input class="userInput" id="userNum" type="number" name="quantity"
+       min="0" max="200" step="10" value="10" style="margin-left:20%"></input>
+       <label for="userNum"># of Artists</label>
 
-    <input type="button" id="genbtn" value="Generate">
-    
-    <a href="index.html" style="text-align: right;"><p>home</p></a>
-  </div>
-  </form>
-  <h4>Spotify count limited to 50 - Last.Fm count limited to 200</h4>
-  <ul class="nav nav-tabs" role="tablist">
-    <li class="nav-item">
-      <a class="nav-link active" data-toggle="tab" href="#graph" role="tab">Graph</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" data-toggle="tab" href="#stats" role="tab">Stats</a>
-    </li>
+      <input type="button" id="genbtn" value="Generate">
+      
+      <a href="index.html" style="text-align: right;"><p>home</p></a>
+      </form>
+    </div>
+
+
+    <h4>Spotify count limited to 50 - Last.Fm count limited to 200</h4>
+    <ul class="nav nav-tabs" role="tablist">
+      <li class="nav-item">
+        <a class="nav-link active" data-toggle="tab" href="#graph" role="tab">Graph</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" data-toggle="tab" href="#stats" role="tab">Stats</a>
+      </li>
   <hr>
-  </div>
+</div>
 </head>
 
 <body>
@@ -122,7 +129,7 @@ head {
   <div class="overflow-auto" id="statlist">
     <h1 id="spotlight">Statistics</h1>
     <hr>
-      <p class="col-md-6" id=""></p>
+    <!--Begin Stat Check Boxes-->
   </div>
 
 </div>
