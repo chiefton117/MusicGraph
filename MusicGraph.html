@@ -96,43 +96,67 @@ label {
       
       <a href="index.html" style="text-align: right;"><p>home</p></a>
       </form>
-    </div>
+  </div>
 
 
     <h4>Spotify count limited to 50 - Last.Fm count limited to 200</h4>
-    <ul class="nav nav-tabs" role="tablist">
+    <ul class="nav nav-tabs" id="datatabs" role="tablist">
       <li class="nav-item">
         <a class="nav-link active" data-toggle="tab" href="#graph" role="tab">Graph</a>
       </li>
       <li class="nav-item">
         <a class="nav-link" data-toggle="tab" href="#stats" role="tab">Stats</a>
       </li>
+    </ul>
   <hr>
-</div>
+  </div>
 </head>
 
 <body>
 <div class="tab-content">
 
 <div class="tab-pane active" id="graph" role="tabpanel">
-<div class="overflow-auto" width="100%" height="100%">
-  <svg id="chart"></svg>
-  <div class="overflow-auto" id="sidelist">
-    <h1 id="spotlight">Artist</h1>
-    <hr>
-    <div class="row">
-      <p class="col-md-6" id="taglist"></p>
-      <p class="col-md-6" id= "linklist"></p>
+  <div class="overflow-auto" width="100%" height="100%">
+
+    <svg id="chart"></svg>
+
+    <div class="container-fluid overflow-auto" id="statlist">
+      
+      <h1 id="spotlight">Statistics</h1>
+      
+      <ul class="nav nav-tabs" id="toggletabs" role="tablist">
+        <li class="nav-item">
+          <a class="nav-link" data-toggle="tab" href="#atoggle" aria-selected="true">Artists</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" data-toggle="tab" href="#gtoggle" aria-selected="false">Genres</a>
+        </li>
+      </ul>
+
+      <hr>
+
+      <div class="tab-content">
+        <div class="tab-pane" id="atoggle" role="tabpanel">
+        <!--Stat Check Boxes Go Here-->
+
+        </div>
+        <div class="tab-pane active" id="gtoggle" role="tabpanel">
+          <p>content</p>
+        </div>
+      </div>
+
     </div>
-  </div>
 
-  <div class="container-fluid overflow-auto" id="statlist">
-    <h1 id="spotlight">Statistics</h1>
-    <hr>
-    <!--Begin Stat Check Boxes-->
-  </div>
+    <div class="overflow-auto" id="sidelist">
+      <h1 id="spotlight">Artist</h1>
+      <hr>
+      <div class="row">
+        <p class="col-md-6" id="taglist"></p>
+        <p class="col-md-6" id= "linklist"></p>
+      </div>
+    </div> 
 
-</div>
+  </div>
 </div>
 <div class="tab-pane" id="stats" role="tabpanel">
   <p>hi!</p>
