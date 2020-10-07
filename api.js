@@ -27,10 +27,6 @@ $(document).ready(function() {
       // Set token
       let accessToken = hash.access_token;
 
-      
-      
-      
-
 
       if(accessToken) {
         service = "Spotify";
@@ -43,8 +39,7 @@ $(document).ready(function() {
         document.cookie = $('#userNum').val();
         getData();
       });
-      
-      
+          
 
   function getData() {
 

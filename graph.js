@@ -23,33 +23,33 @@ function genGraph() {
           .attr("stroke-width", 1);
 
         var node = g.append("g")
-            .attr("class", "nodes")
+          .attr("class", "nodes")
           .selectAll("g")
           .data(window.artistData.nodes)
           .enter().append("g");
 
+        svg.on("mousedown", function() {
+          node.selectAll("circle").classed("selected", false);
+          d3.selectAll(".links>line").classed("selected", false);
+        });
 
         node.on("click", function(d) { // SET ONCLICK FUNCTIONALITY For artist spotlight
 
-          node.selectAll("circle").style('fill', '#1f77b4'); // De-select everything prior
-          d3.selectAll(".links>line")
-          .style('stroke', '#999')
-          .style('stroke-width', '1');
+          node.selectAll("circle").classed("selected", false);
+          d3.selectAll(".links>line").classed("selected", false);
 
 
           d3.selectAll(".links>line").filter(function(link_d) {
             return link_d.source.id == d.id || link_d.target.id == d.id;
-          })
-          .style('stroke', '#FF5733')
-          .style('stroke-width', '3');
+          }).classed("selected", true);
+
 
           node
-          .select("circle").style('fill', function(link_n) {
-            return d.linked.includes(link_n.id)  ? '#FF5733' : '#1f77b4';
+          .select("circle").classed("selected", function(link_n) {
+            return d.linked.includes(link_n.id)  ? true : false;
           });
 
-          d3.select(this).select("circle").style("fill", "#FF5733");
-
+          d3.select(this).select("circle").attr("class", "selected");
 
           $("#spotlight").text(d.id); // Create spotlight list
           $("#taglist").text(d.genres.join("\n"));
@@ -59,7 +59,8 @@ function genGraph() {
             return s - f;
           }).join("\n"));
 
-        });  
+        });
+
 
         var circles = node.append("circle")
             .attr("r", 5)
