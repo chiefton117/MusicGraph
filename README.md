@@ -3,4 +3,4 @@ A d3 generated force-directed graph of any given user's artists, linked by commo
 
 now with spotify integration!
 
-[Screenshot](https://github.com/chiefton117/MusicGraph/blob/master/images/screenshot.png?raw=true)
+[Screenshot](images/screenshot.png)
