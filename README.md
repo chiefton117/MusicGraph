@@ -3,4 +3,6 @@ A d3 generated force-directed graph of any given user's artists, linked by commo
 
 now with spotify integration!
 
-[Screenshot](images/screenshot.png)
+[Screenshot 50 Artists](images/screenshot.png)
+
+[Screenshot 30 Artists](images/screenshot2.png)
