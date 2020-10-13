@@ -73,13 +73,13 @@ function genStats() {
           });
 		
 	});
-	/*
+	
 	gboxes.on("click", function(d) {
 		var ch = $(this).prop('checked');
 		var circles = d3.selectAll(".nodes>g");
 	
 		circles.select(function(i) {
-			if(i.genres.includes(d)) return this;
+			if(i.genres.every(e => hidden.includes(e)) && i.genres.includes(d)) return this;
 		}).style("visibility", function(d_sel) {
 				if(ch) {
 					hidden.splice(hidden.indexOf(d_sel.id),1);
@@ -97,7 +97,7 @@ function genStats() {
           		return ch ? 'visible' : 'hidden';
           });
 		
-	});*/
+	});
 
 
 
