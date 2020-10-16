@@ -20,7 +20,11 @@ MusicStats was created with the purpose of providing alternative information abo
 This project is powered by:
 
 *[jQuery](https://jquery.com/)
+
 *[D3.js](https://d3js.org/)
+
 *[Last.fm](https://www.last.fm/api)
+
 *[Spotify](https://developer.spotify.com/documentation/web-api/quick-start/)
+
 *[Bootstrap](https://getbootstrap.com/)
