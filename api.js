@@ -209,11 +209,11 @@ function ajax2(name) {
         url: "http://ws.audioscrobbler.com/2.0/?method=artist.gettoptags&artist=" + name + "&api_key=943bdddf5707846447a81b95edae1537&format=json"
       });
 }
-function spotifyAjax(accessToken, limit) {
+function spotifyAjax(accessToken, limit, offset) {
   console.log("token " + accessToken);
   console.log("limit " + limit);
   return $.ajax({
-   url: 'https://api.spotify.com/v1/me/top/artists/?limit=' + limit,
+   url: 'https://api.spotify.com/v1/me/top/artists/?limit=' + limit + '&offset=' + offset,
    async: false,
    type: "GET",
    headers: {
