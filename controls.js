@@ -1,5 +1,5 @@
 var hidden = [];
-function genStats() {
+function genControls() {
 
 	hidden = [];
 

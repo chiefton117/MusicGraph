@@ -12,7 +12,7 @@ $(document).ready(function() {
 
       
       var service;
-      const hash = window.location.hash
+      const hash = window.location.hash // Attempt to locate the token from spotify, if it exists
       .substring(1)
       .split('&')
       .reduce(function (initial, item) {
@@ -41,7 +41,8 @@ $(document).ready(function() {
       });
           
 
-  function getData() {
+
+      function getData() {
 
        
         if(window.firstClick) {
@@ -49,7 +50,8 @@ $(document).ready(function() {
         }
 
         const userTxt = $('#userTxt').val();
-        const userNum = document.cookie;
+        var cookielen = document.cookie.split(" ").length-1; // If a cookie is set, get the length of its arguments
+        const userNum = parseInt(document.cookie.split(" ")[cookielen]); // We only need the integer at the end
 
 
         var current;
@@ -62,7 +64,6 @@ $(document).ready(function() {
           }
         }
         btnLoop();
-        
         $('#genbtn').attr("disabled", "true");
         $('#progresscontainer').show(); // Show progress bar
 
@@ -84,6 +85,7 @@ $(document).ready(function() {
                 "id" : current,
                 "genres": arr,
                 "linked": linked,
+                "plays": data1.artists.artist[i].playcount,
                 "group" : 1
               });
                   });
@@ -113,25 +115,31 @@ $(document).ready(function() {
             $('#userNum').val(userNum);
             document.getElementById("sbtn").checked = true; // Check the spotify radio dial for consistency
 
-            $.when(spotifyAjax(accessToken, userNum % 50)).done(function(data) {
-              window.numArtists = data.total; // correctly sets
-              for(var i=0; i<window.numArtists;i++) {
-                var linked = new Array();
-                current = data.items[i];
-                if(current) {
-                window.artistData.nodes.push({
-                  "id" : current.name,
-                  "genres": current.genres,
-                  "linked": linked,
-                  "group" : 1
-                });
-              }
-                var progress = ((i / (window.numArtists-1)) * 100).toFixed(2);
-                $('#progress').css('width', progress + "%").html(progress + "%"); // Update progress bar
+            var looping = true;
+            while(looping) {
+              $.when(spotifyAjax(accessToken, 50, window.numArtists)).done(function(data) {
+                window.numArtists = window.numArtists + data.total; // correctly sets artists for loop
+                for(var i=0; i<data.total;i++) {
+                  var linked = new Array();
+                  current = data.items[i];
+                  if(current) {
+                  window.artistData.nodes.push({
+                    "id" : current.name,
+                    "genres": current.genres,
+                    "linked": linked,
+                    "plays": current.playcount,
+                    "group" : 1
+                  });
+                }
+                  var progress = ((i / (window.numArtists-1)) * 100).toFixed(2);
+                  $('#progress').css('width', progress + "%").html(progress + "%"); // Update progress bar
 
-              }
-            });
-          
+                }
+              if(data.total < 50) looping = false;
+              });
+
+            }
+
         } else {
           alert("you must select one service to search by");
         }
@@ -143,7 +151,7 @@ $(document).ready(function() {
 
             window.genres = window.genres.concat(artist1.genres.filter(value => !window.genres.includes(value))); // Add unique values to genres
 
-            for(var j=i+1;j<window.numArtists;j++) {
+            for(var j=i+1;j<window.numArtists;j++) { // Unfortunate 2d for loop to create links
               var artist2 = window.artistData.nodes[j];
               var commonTags = getCommonTagNum(artist1.genres, artist2.genres);
               
@@ -165,7 +173,9 @@ $(document).ready(function() {
        $('#progresscontainer').hide(); // Hide progress bar
       window.genres.sort(); // sort all genres alphabetically
       genGraph();
+      genControls();
       genStats();
+
     }
 });
 

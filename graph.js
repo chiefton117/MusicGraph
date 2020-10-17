@@ -1,7 +1,7 @@
 
 function genGraph() {
       //Begin generation of graph itself
-      var svg = d3.select("svg"),
+      var svg = d3.select("#chart"),
       width = +svg.attr("width"),
       height = +svg.attr("height");
 

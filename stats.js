@@ -1,106 +1,41 @@
-var hidden = [];
 function genStats() {
 
-	hidden = [];
-
-	d3.select("#toggletabs").append("label") // Select All Button
-		.attr("class", "col-sm-4 col-md-4 col-lg-4")
-		.text("Select All ")
-		.append("input")
-		.attr("type", "checkbox")
-		.property("checked", true)
-		.attr("id", "all")
-		.on("click", function(d) { // Logic for selecting and de-selecting all
-			hidden = [];
-			if(this.hasAttribute("checked")) {
-				this.removeAttribute('checked');
-				$('label>input').prop("checked", false);
-				d3.selectAll(".nodes>g").style("visibility", "hidden");
-				d3.selectAll(".links>line").style("visibility", "hidden");
-				window.artistData.nodes.forEach(e => hidden.push(e.id));
-			} else {
-				this.setAttribute("checked", "true");
-				$('label>input').prop("checked", true);
-				d3.selectAll(".nodes>g").style("visibility", "visible");
-				d3.selectAll(".links>line").style("visibility", "visible");
-			}
+	var weightedGenres = {};
+	var totalplays = 0;
+	console.log(window.numArtists);
+	for(var i=0;i<window.numArtists;i++) {
+		var current = window.artistData.nodes[i];
+		current.genres.forEach(function(d) {
+			if(weightedGenres[d]) {
+				weightedGenres[d] = weightedGenres[d] + parseInt(current.plays);
+			} else weightedGenres[d] = parseInt(current.plays);
 		});
+		totalplays += parseInt(current.plays);
+	}
+	/*
+	const root = treemap(weightedGenres);
 
-	var alabels = d3.select("#atoggle").selectAll("input")
-		.data(window.artistData.nodes)
-		.enter().append("label")
-		.attr("class", "col-sm-4 col-md-4 col-lg-4")
-		.text(function(d) { return d.id + " "; });
+	var svg = d3.select("#bubbles")
+	.append("svg")
+	.attr("width", 100)
+	.attr("height", 100)
+	.append("g")
+	.attr("transform"
+		"translate(" + width / 2 + "," + height / 2 + ")");
+	*/
+	var genreLen = document.createElement('H1');
+	genreLen.innerHTML = "# of Genres Recorded : " + Object.keys(weightedGenres).length;
+	$("#stats").append(genreLen);
 
-	var	aboxes = alabels.append("input")
-		.attr("type", "checkbox")
-		.property("checked", true)
-		.attr("id", function(d) { return d.id; });
+	var possible = choose(window.numArtists,2); // maximum possible number of links
+	var link = document.createElement('H1');
+	link.innerHTML = "% of artists linked : " + ((artistData.links.length / possible) * 100).toFixed(2) + "%";
+	$("#stats").append(link);
+	console.log("Plays" + totalplays);
+	console.log(weightedGenres);
 	
-	var glabels = d3.select("#gtoggle").selectAll("input")
-		.data(window.genres)
-		.enter().append("label")
-		.attr("class", "col-sm-4 col-md-4 col-lg-4")
-		.text(function(d) { return d + " "; });
-
-	var	gboxes = glabels.append("input")
-		.attr("type", "checkbox")
-		.property("checked", true)
-		.attr("id", function(d) { return d; });
-	
-	aboxes.on("click", function(d) {
-
-		var ch = $(this).prop('checked');
-		var circles = d3.selectAll(".nodes>g");
-	
-		circles.select(function(i) {
-			if(i.id == d.id) return this;
-		}).style("visibility", function(d_sel) {
-				if(ch) {
-					hidden.splice(hidden.indexOf(d_sel.id),1);
-					return 'visible';	
-				}
-				else {
-					hidden.push(d_sel.id);
-					return 'hidden';
-				}
-			});
-
-		d3.selectAll(".links>line").filter(function(link_d) {
-            return (link_d.source.id == d.id && !hidden.includes(link_d.target.id)) || (link_d.target.id == d.id && !hidden.includes(link_d.source.id));
-          }).style("visibility", function(d_sel) {
-          		return ch ? 'visible' : 'hidden';
-          });
-		
-	});
-	
-	gboxes.on("click", function(d) {
-		var ch = $(this).prop('checked');
-		var circles = d3.selectAll(".nodes>g");
-	
-		circles.select(function(i) {
-			if(i.genres.every(e => hidden.includes(e)) && i.genres.includes(d)) return this;
-		}).style("visibility", function(d_sel) {
-				if(ch) {
-					hidden.splice(hidden.indexOf(d_sel.id),1);
-					return 'visible';	
-				}
-				else {
-					hidden.push(d_sel.id);
-					return 'hidden';
-				}
-			});
-
-		d3.selectAll(".links>line").filter(function(link_d) {
-            return (link_d.source.id == d.id && !hidden.includes(link_d.target.id)) || (link_d.target.id == d.id && !hidden.includes(link_d.source.id));
-          }).style("visibility", function(d_sel) {
-          		return ch ? 'visible' : 'hidden';
-          });
-		
-	});
-
-
-
-
-
+}
+function choose(n, k) {
+    if (k === 0) return 1;
+    return (n * choose(n-1, k-1)) / k;
 }
