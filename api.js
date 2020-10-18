@@ -41,7 +41,12 @@ $(document).ready(function() {
       });
           
 
-
+      // This function will create our global artist, link and genre data in three general steps:
+      // 0. Authenticate the user for their preferred service(Spotify involves a sign-in and redirect)
+      // 1. Batch call to the given API to get artist data
+      //  1a. For Last.FM, multiple unique API calls are required for the artist and their genres respectively
+      //  1b. For Spotify, multiple API calls are required, as there is a limit of 50 with an offset
+      // 2. Create links by iterating over every artist and returning a link if their common genres > 0
       function getData() {
 
        
@@ -68,16 +73,17 @@ $(document).ready(function() {
         $('#progresscontainer').show(); // Show progress bar
 
         if(service == "Last.fm") {
-              $.when(ajax1(userTxt, userNum)).done(function(data1){
+
+              $.when(ajax1(userTxt, userNum)).done(function(data1) {
               window.numArtists = data1.artists.artist.length;
               for(var i = 0; i < window.numArtists; i++) { // Initialize each artist with name and empty array
                 var linked = new Array();
                 current = data1.artists.artist[i].name;
                 if(current) {
-                  $.when(ajax2(current)).done(function(data2) {
+                  $.when(ajax2(current)).done(function(data2) { // Embedded ajax call for quicker storage
                   var arr = new Array();
                   if(data2.toptags) {
-                        for(var j = 0; j < window.numTags; j++) { // TODO maybe replace with more?
+                        for(var j = 0; j < window.numTags; j++) { // Set to 10 default to prevent aggressive linking
                           if(data2.toptags.tag[j]) arr[j] = data2.toptags.tag[j].name.toLowerCase();
                         }
                   }

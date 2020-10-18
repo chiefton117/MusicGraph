@@ -3,14 +3,15 @@ function genControls() {
 
 	hidden = [];
 
-	d3.select("#toggletabs").append("label") // Select All Button
+	 // Select All Button
+	d3.select("#toggletabs").append("label")
 		.attr("class", "col-sm-4 col-md-4 col-lg-4")
 		.text("Select All ")
 		.append("input")
 		.attr("type", "checkbox")
 		.property("checked", true)
 		.attr("id", "all")
-		.on("click", function(d) { // Logic for selecting and de-selecting all
+		.on("click", function(d) { // Logic for selecting and de-selecting all nodes/links
 			hidden = [];
 			if(this.hasAttribute("checked")) {
 				this.removeAttribute('checked');
@@ -26,33 +27,42 @@ function genControls() {
 			}
 		});
 
+	// Create all labels for artists
 	var alabels = d3.select("#atoggle").selectAll("input")
 		.data(window.artistData.nodes)
 		.enter().append("label")
 		.attr("class", "col-sm-4 col-md-4 col-lg-4")
 		.text(function(d) { return d.id + " "; });
 
+	// Create checkboxes for artists and append to labels
 	var	aboxes = alabels.append("input")
 		.attr("type", "checkbox")
 		.property("checked", true)
 		.attr("id", function(d) { return d.id; });
 	
+	// Create labels for all genres
 	var glabels = d3.select("#gtoggle").selectAll("input")
 		.data(window.genres)
 		.enter().append("label")
 		.attr("class", "col-sm-4 col-md-4 col-lg-4")
 		.text(function(d) { return d + " "; });
 
+	// Create checkboxes for genres and append to labels
 	var	gboxes = glabels.append("input")
 		.attr("type", "checkbox")
 		.property("checked", true)
 		.attr("id", function(d) { return d; });
 	
+	// Selects and de-selects an artist and all linked nodes if their checkbox is toggled
+	// 1. See if this artist should appear or not
+	// 2. Find this artist's node and hide/show it, update array of hidden artists
+	// 3. Find all links to or from this artist, show or hide them accordingly
 	aboxes.on("click", function(d) {
 
-		var ch = $(this).prop('checked');
+		var ch = $(this).prop('checked'); // Is this artist's box checked?
 		var circles = d3.selectAll(".nodes>g");
-	
+		
+		// Select the node with same primary key(artist name), update hidden array accordingly
 		circles.select(function(i) {
 			if(i.id == d.id) return this;
 		}).style("visibility", function(d_sel) {
@@ -66,14 +76,17 @@ function genControls() {
 				}
 			});
 
+		// Select all lines that are NOT hidden, and are attached to our artist
 		d3.selectAll(".links>line").filter(function(link_d) {
-            return (link_d.source.id == d.id && !hidden.includes(link_d.target.id)) || (link_d.target.id == d.id && !hidden.includes(link_d.source.id));
+            return (link_d.source.id == d.id && !hidden.includes(link_d.target.id)) 
+            || (link_d.target.id == d.id && !hidden.includes(link_d.source.id));
           }).style("visibility", function(d_sel) {
           		return ch ? 'visible' : 'hidden';
           });
 		
 	});
 	
+	// This is currently experimental
 	gboxes.on("click", function(d) {
 		var ch = $(this).prop('checked');
 		var circles = d3.selectAll(".nodes>g");
