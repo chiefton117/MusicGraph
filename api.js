@@ -39,7 +39,7 @@ $(document).ready(function() {
         document.cookie = $('#userNum').val();
         getData();
       });
-          
+
 
       // This function will create our global artist, link and genre data in three general steps:
       // 0. Authenticate the user for their preferred service(Spotify involves a sign-in and redirect)
@@ -49,7 +49,9 @@ $(document).ready(function() {
       // 2. Create links by iterating over every artist and returning a link if their common genres > 0
       function getData() {
 
-       
+
+
+
         if(window.firstClick) {
             window.firstClick = false;
         }
@@ -120,10 +122,15 @@ $(document).ready(function() {
             //If we've reached this part of the code, it means an access token has been granted
             $('#userNum').val(userNum);
             document.getElementById("sbtn").checked = true; // Check the spotify radio dial for consistency
+            if(!window.numArtists) {
+                  window.numArtists = 0;
+                }
 
             var looping = true;
             while(looping) {
               $.when(spotifyAjax(accessToken, 50, window.numArtists)).done(function(data) {
+                console.log(data.total);
+
                 window.numArtists = window.numArtists + data.total; // correctly sets artists for loop
                 for(var i=0; i<data.total;i++) {
                   var linked = new Array();
@@ -226,8 +233,6 @@ function ajax2(name) {
       });
 }
 function spotifyAjax(accessToken, limit, offset) {
-  console.log("token " + accessToken);
-  console.log("limit " + limit);
   return $.ajax({
    url: 'https://api.spotify.com/v1/me/top/artists/?limit=' + limit + '&offset=' + offset,
    async: false,

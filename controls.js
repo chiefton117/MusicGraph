@@ -40,6 +40,7 @@ function genControls() {
 		.property("checked", true)
 		.attr("id", function(d) { return d.id; });
 	
+	/*
 	// Create labels for all genres
 	var glabels = d3.select("#gtoggle").selectAll("input")
 		.data(window.genres)
@@ -52,7 +53,34 @@ function genControls() {
 		.attr("type", "checkbox")
 		.property("checked", true)
 		.attr("id", function(d) { return d; });
-	
+	*/
+	var glabels = d3.select("#genrepicker").selectAll("option")
+		.data(window.genres)
+		.enter().append("option")
+		.attr("data-tokens", function(d) { return d; })
+		.text(function(d) { return d; });
+
+	//$('select').on('change', function(d) {
+		glabels.on("click", function(d) {
+		var circles = d3.selectAll(".nodes>g");
+		
+		// Select the node with same primary key(artist name), update hidden array accordingly
+		circles.style("visibility", function(d_sel) {
+				return d_sel.genres.includes(d) ? 'visible' : 'hidden';
+				if(hidden.includes(d_sel)) hidden.splice(hidden.indexOf(d_sel.id),1);
+			});
+
+
+		// Select all lines that are NOT hidden, and are attached to our artist
+		d3.selectAll(".links>line").style("visibility", function(d_sel) {
+			return d_sel.source.genres.includes(d) && d_sel.target.genres.includes(d) ? 'visible' : 'hidden';
+          		//return (circles.select(d_sel.source).attr('visibility') == 'visible' && circles.select(d_sel.target).attr('visibility') == 'visible') ? 'visible' : 'hidden';
+          });
+
+
+	});
+
+
 	// Selects and de-selects an artist and all linked nodes if their checkbox is toggled
 	// 1. See if this artist should appear or not
 	// 2. Find this artist's node and hide/show it, update array of hidden artists
@@ -86,6 +114,7 @@ function genControls() {
 		
 	});
 	
+	/*
 	// This is currently experimental
 	gboxes.on("click", function(d) {
 		var ch = $(this).prop('checked');
@@ -111,7 +140,7 @@ function genControls() {
           });
 		
 	});
-
+*/
 
 
 

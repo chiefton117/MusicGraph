@@ -63,3 +63,7 @@ label {
   display: flex;
   align-items: center;
 }
+.select {
+  max-width: 100%;
+  position:absolute;
+}
