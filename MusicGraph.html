@@ -6,11 +6,13 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
-
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="http://requirejs.org/docs/release/2.1.5/comments/require.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<!-- End dependency gang >:( -->
+
 <script type="text/javascript" src="tokens.js"></script>
 <script type="text/javascript" src="graph.js"></script>
 <script type="text/javascript" src="api.js"></script>
@@ -21,9 +23,9 @@
 <head>
   <div style="background-color: #F5F5F5;">
   <!--Integration of bootstrap-->
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  
 
-  <div style="display: block;"> <!--Page top toolbar selectors-->
+  <div> <!--Page top toolbar selectors-->
       <form id='userForm'>
       <input class="userInput" id="userTxt" type="text" value="chiefton117"></input>
       <input type="radio" id="lfmbtn" name="serviceBtn" value="Last.fm">
@@ -89,14 +91,14 @@
 
       <hr>
 
-      <div class="tab-content">
-        <div class="tab-pane active" id="atoggle" role="tabpanel">
+      <div class="tab-content" id="gbox">
+        <div class="tab-pane" id="atoggle" role="tabpanel">
         <!--Stat Check Boxes Go Here-->
 
         </div>
-        <div class="tab-pane" id="gtoggle" role="tabpanel">
+        <div class="tab-pane active" id="gtoggle" role="tabpanel">
         <!--Genre Check Boxes Go Here-->
-        <select id="genrepicker" class="form-control" multiple data-selected-text-format="count > 3" data-live-search="true">
+        <select id="genrepicker" class="form-control form-control-lg" placeholder=".form-control-lg" multiple data-selected-text-format="count > 3" data-live-search="true">
         </select>
 
         </div>

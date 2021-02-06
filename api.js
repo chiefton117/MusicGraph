@@ -1,6 +1,7 @@
 window.numTags = 10;
 window.firstClick = true;
 
+window.rGenres = {};
 window.numArtists;
 window.genres = [];
 window.artistData = {
@@ -74,15 +75,15 @@ $(document).ready(function() {
         $('#genbtn').attr("disabled", "true");
         $('#progresscontainer').show(); // Show progress bar
 
-        if(service == "Last.fm") {
+        if(service == "Last.fm") { // SERVICES FOR LAST FM
 
-              $.when(ajax1(userTxt, userNum)).done(function(data1) {
+              $.when(fmArtists(userTxt, userNum)).done(function(data1) {
               window.numArtists = data1.artists.artist.length;
               for(var i = 0; i < window.numArtists; i++) { // Initialize each artist with name and empty array
                 var linked = new Array();
                 current = data1.artists.artist[i].name;
                 if(current) {
-                  $.when(ajax2(current)).done(function(data2) { // Embedded ajax call for quicker storage
+                  $.when(fmATopTags(current)).done(function(data2) { // Embedded ajax call for quicker storage
                   var arr = new Array();
                   if(data2.toptags) {
                         for(var j = 0; j < window.numTags; j++) { // Set to 10 default to prevent aggressive linking
@@ -104,9 +105,7 @@ $(document).ready(function() {
 
               }
           });
-    
-
-        } else if(service == "Spotify") {
+        } else if(service == "Spotify") { // SERVICES FOR SPOTIFY
         
             const scopes = [
               'user-top-read'
@@ -168,7 +167,7 @@ $(document).ready(function() {
               var artist2 = window.artistData.nodes[j];
               var commonTags = getCommonTagNum(artist1.genres, artist2.genres);
               
-              if(commonTags > 0) {
+              if(commonTags > 2) {
                 window.artistData.links.push({
                   "source" : artist1.id,
                   "target" : artist2.id,
@@ -215,7 +214,7 @@ function getCommonTags(artist1, artist2) {
 /*
   Returns the Last.Fm JSON call for artists for a given user
 */
-function ajax1(username, limit) {
+function fmArtists(username, limit) {
   return $.ajax({
         dataType: 'json',
         async: false,
@@ -225,13 +224,23 @@ function ajax1(username, limit) {
 /*
   Returns the Last.Fm JSON call for tags for a given artist
 */
-function ajax2(name) {
+function fmATopTags(name) {
   return $.ajax({
         dataType: 'json',
         async: false,
         url: "http://ws.audioscrobbler.com/2.0/?method=artist.gettoptags&artist=" + name + "&api_key=943bdddf5707846447a81b95edae1537&format=json"
       });
 }
+/* 
+  Returns the Last.Fm JSON call for a user's top tags, the limit of which should be the same as the amount of artists queried * window.numTags limit
+*/
+function fmUTopTags(username, limit) {
+  return $.ajax({
+        dataType: 'json',
+        async: false,
+        url: "http://ws.audioscrobbler.com/2.0/?method=user.gettoptags&user=" + username + "&api_key=943bdddf5707846447a81b95edae1537&format=json"
+      });
+} 
 function spotifyAjax(accessToken, limit, offset) {
   return $.ajax({
    url: 'https://api.spotify.com/v1/me/top/artists/?limit=' + limit + '&offset=' + offset,
