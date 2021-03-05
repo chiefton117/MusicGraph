@@ -7,7 +7,7 @@ MusicStats was created with the purpose of providing alternative information abo
 
 # Examples
 
-<img alt="Screenshot 10 Artists" src="MusicGraph/images/screenshot.png">
+<img alt="Screenshot 10 Artists" src="/images/screenshot.png">
 
 <img alt="Screenshot 30 Artists" src="images/screenshot2.png">
 
